@@ -27,31 +27,32 @@ const getVideoId = (url: string) => url.split("/watch?v=")[1];
 
 const isVideoUrl = (url: string) => /youtube.com\/watch\?v=/.test(url);
 
-const getActiveVideo = async () =>
-	waitForElement("#player #container.ytd-player");
+const getVideoPlayer = async () =>
+	waitForElement("#movie_player.html5-video-player");
 
 const pauseCurrentVideo = async () => {
-	const activeVideo = await getActiveVideo();
+	const videoPlayer = await getVideoPlayer();
 
-	if (!activeVideo) return;
+	if (!videoPlayer) return;
 
 	await waitFor(1000);
 
 	await waitForElement("#player-container");
 
-	const moviePlayer = activeVideo.querySelector("#movie_player");
-
-	if (!moviePlayer) return;
-
-	const isVideoOrAdsPlaying = moviePlayer.classList.contains("playing-mode");
+	const isVideoOrAdsPlaying = videoPlayer.classList.contains("playing-mode");
 
 	if (isVideoOrAdsPlaying) {
 		// pause current video
-		(moviePlayer as HTMLElement).click();
+		(videoPlayer as HTMLElement).click();
 	}
 };
 
-const renderIframeOnVideo = async (activeVideo: HTMLElement) => {
+// aggressively attempt to pause original video player to avoid playing in background (e.g. due to (Space) keyboard events).
+setInterval(async () => {
+	await pauseCurrentVideo();
+}, 500);
+
+const renderIframeOnVideo = async (videoPlayer: HTMLElement) => {
 	iframe.id = "iframe";
 	iframe.style.cssText = `
       width: 100%;
@@ -60,15 +61,13 @@ const renderIframeOnVideo = async (activeVideo: HTMLElement) => {
       top: 0;
       left: 0;
       right: 0;
-      z-index: 10;
+      z-index: 9999;
       border-radius: 12px;
   `;
 
-	activeVideo.style.position = "relative";
+	videoPlayer.style.position = "relative";
 
 	const videoId = getVideoId(location.href);
-
-	await pauseCurrentVideo();
 
 	iframe.setAttribute(
 		"src",
@@ -78,7 +77,7 @@ const renderIframeOnVideo = async (activeVideo: HTMLElement) => {
 
 	await waitFor(500);
 
-	activeVideo.appendChild(iframe);
+	videoPlayer.appendChild(iframe);
 };
 
 const init = async (url = location.href) => {
@@ -96,7 +95,7 @@ const init = async (url = location.href) => {
 
 	await waitFor(500);
 
-	const activeVideo = await getActiveVideo();
+	const activeVideo = await getVideoPlayer();
 
 	if (activeVideo) {
 		renderIframeOnVideo(activeVideo);
