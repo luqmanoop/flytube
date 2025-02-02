@@ -1,6 +1,6 @@
 {
   "name": "YPremium",
-  "description": "YPremium is a browser extension that allows you to access premium content on YT.",
+  "description": "Watch YouTube. Ad-free",
   "version": "0.1.0",
   "manifest_version": 3,
   "icons": {
