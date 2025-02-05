@@ -21,11 +21,12 @@ style.textContent = `
 
 document.head.appendChild(style);
 
-const iframe = document.createElement("iframe");
+const embedPlayer = document.createElement("iframe");
 
-const getVideoId = (url: string) => url.split("/watch?v=")[1];
+const getPageUrl = (url: string) => new URL(url);
 
-const isVideoUrl = (url: string) => /youtube.com\/watch\?v=/.test(url);
+const isVideoWatchPage = (url: URL) =>
+	/\/watch/.test(url.pathname) && Boolean(url.searchParams.get("v"));
 
 const getVideoPlayer = async () =>
 	waitForElement("#movie_player.html5-video-player");
@@ -35,14 +36,12 @@ const pauseCurrentVideo = async () => {
 
 	if (!videoPlayer) return;
 
-	await waitFor(1000);
-
 	await waitForElement("#player-container");
 
 	const isVideoOrAdsPlaying = videoPlayer.classList.contains("playing-mode");
 
 	if (isVideoOrAdsPlaying) {
-		// pause current video
+		// click to pause current video/Ad
 		(videoPlayer as HTMLElement).click();
 	}
 };
@@ -52,9 +51,14 @@ setInterval(async () => {
 	await pauseCurrentVideo();
 }, 500);
 
-const renderIframeOnVideo = async (videoPlayer: HTMLElement) => {
-	iframe.id = "iframe";
-	iframe.style.cssText = `
+const renderIframeOnVideo = async (
+	videoPlayer: HTMLElement,
+	videoId: string,
+	playlistId?: string | null, // TODO: add playlist support
+) => {
+	videoPlayer.style.position = "relative";
+
+	embedPlayer.style.cssText = `
       width: 100%;
       height: 100%;
       position: absolute;
@@ -64,41 +68,41 @@ const renderIframeOnVideo = async (videoPlayer: HTMLElement) => {
       z-index: 9999;
       border-radius: 12px;
   `;
-
-	videoPlayer.style.position = "relative";
-
-	const videoId = getVideoId(location.href);
-
-	iframe.setAttribute(
+	embedPlayer.setAttribute(
 		"src",
 		`https://www.youtube.com/embed/${videoId}?loop=1&autoplay=1`,
 	);
-	iframe.setAttribute("id", videoId);
+	embedPlayer.setAttribute("id", videoId);
 
 	await waitFor(500);
 
-	videoPlayer.appendChild(iframe);
+	videoPlayer.appendChild(embedPlayer);
 };
 
-const init = async (url = location.href) => {
-	const activeUrl = url;
-	const videoId = getVideoId(activeUrl);
+const init = async (newUrl = location.href) => {
+	const url = getPageUrl(newUrl);
+
+	const videoId = url.searchParams.get("v");
+	const playlistId = url.searchParams.get("list");
 
 	await waitFor(500);
 
-	// Remove iframe if active video changes to avoid previous iframe video playing in background
-	if (iframe?.src && iframe?.id !== videoId) {
-		iframe.remove();
+	if (!isVideoWatchPage(url)) {
+		embedPlayer.remove();
+		return;
 	}
 
-	if (!isVideoUrl(activeUrl)) return;
+	// Remove iframe if active video changes to avoid previous iframe video playing in background
+	if (embedPlayer?.src && embedPlayer?.id !== videoId) {
+		embedPlayer.remove();
+	}
 
 	await waitFor(500);
 
 	const activeVideo = await getVideoPlayer();
 
-	if (activeVideo) {
-		renderIframeOnVideo(activeVideo);
+	if (activeVideo && videoId && !playlistId) {
+		renderIframeOnVideo(activeVideo, videoId);
 	}
 };
 
@@ -107,9 +111,12 @@ const init = async (url = location.href) => {
 		// first init if current url is a video url due to page reload or coming from external website
 		init();
 
-		// reinitialize on page navigation while on YouTube
-		window.navigation.addEventListener("navigate", ({ destination: { url } }) =>
-			init(url),
+		// reinitialize on page navigation
+		window.navigation.addEventListener(
+			"navigate",
+			({ destination: { url } }) => {
+				init(url);
+			},
 		);
 	} catch (error) {
 		console.error(error);
