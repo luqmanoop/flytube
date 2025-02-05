@@ -74,8 +74,6 @@ const renderIframeOnVideo = async (
 	);
 	embedPlayer.setAttribute("id", videoId);
 
-	await waitFor(500);
-
 	videoPlayer.appendChild(embedPlayer);
 };
 
@@ -84,8 +82,6 @@ const init = async (newUrl = location.href) => {
 
 	const videoId = url.searchParams.get("v");
 	const playlistId = url.searchParams.get("list");
-
-	await waitFor(500);
 
 	if (!isVideoWatchPage(url)) {
 		embedPlayer.remove();
@@ -96,8 +92,6 @@ const init = async (newUrl = location.href) => {
 	if (embedPlayer?.src && embedPlayer?.id !== videoId) {
 		embedPlayer.remove();
 	}
-
-	await waitFor(500);
 
 	const activeVideo = await getVideoPlayer();
 
