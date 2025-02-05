@@ -3,6 +3,7 @@ import { waitFor, waitForElement } from "./utils";
 export class YtVideoPlayer {
 	private playerContainer: HTMLElement;
 	private player: HTMLVideoElement;
+	private isAllowedToPlay = false;
 
 	constructor(playerContainer: HTMLElement) {
 		this.playerContainer = playerContainer;
@@ -23,7 +24,13 @@ export class YtVideoPlayer {
 	}
 
 	pause() {
-		this.player.pause();
+		if (!this.isAllowedToPlay) {
+			this.player.pause();
+		}
+	}
+
+	setIsAllowedToPlay(value: boolean) {
+		this.isAllowedToPlay = value;
 	}
 
 	isPlaying() {

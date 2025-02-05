@@ -65,5 +65,12 @@ export class YPremium {
 		await this.ytVideoPlayer.registerEvents();
 		this.embeddedPlayer = new EmbeddedPlayer(this.ytVideoPlayer, this.videoId);
 		this.embeddedPlayer.render();
+
+		this.embeddedPlayer.onFailedToLoad((intervalId) => {
+			this.ytVideoPlayer?.setIsAllowedToPlay(true);
+			this.ytVideoPlayer?.play();
+			clearInterval(intervalId);
+			this.embeddedPlayer?.destroy();
+		});
 	}
 }

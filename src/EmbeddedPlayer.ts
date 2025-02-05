@@ -43,6 +43,12 @@ export class EmbeddedPlayer {
 		return this.videoId;
 	}
 
+	get errorContent(): HTMLElement | null {
+		return this.iframe.contentWindow?.document.querySelector(
+			".ytp-error-content",
+		) as HTMLElement | null;
+	}
+
 	get player(): HTMLVideoElement | null {
 		return this.iframe.contentWindow?.document.querySelector(
 			"video",
@@ -56,5 +62,13 @@ export class EmbeddedPlayer {
 
 	destroy() {
 		this.iframe.remove();
+	}
+
+	onFailedToLoad(cb: (intervalId: Timer) => void) {
+		const interval = setInterval(() => {
+			if (this.errorContent) {
+				cb(interval);
+			}
+		}, 500);
 	}
 }
