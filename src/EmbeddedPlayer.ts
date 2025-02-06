@@ -123,6 +123,16 @@ export class EmbeddedPlayer {
 		}
 	}
 
+	togglePlayMode() {
+		if (!this.player) return;
+
+		if (this.player.paused) {
+			this.player.play();
+		} else {
+			this.player.pause();
+		}
+	}
+
 	render() {
 		this.prepare();
 		this.ytVideoPlayer.mount(this.iframe);
@@ -133,6 +143,7 @@ export class EmbeddedPlayer {
 		waitFor(2000).then(() => {
 			Keyboard.onRightArrowPressed(() => this.seekForward());
 			Keyboard.onLeftArrowPressed(() => this.seekBackward());
+			Keyboard.onSpacePressed(() => this.togglePlayMode());
 		});
 	}
 
