@@ -1,10 +1,11 @@
 import type { YtVideoPlayer } from "./YtVideoPlayer";
-import { isVideoWatchPage } from "./utils";
+import { isVideoWatchPage, waitFor } from "./utils";
 
 export class EmbeddedPlayer {
 	private ytVideoPlayer: YtVideoPlayer;
 	private iframe: HTMLIFrameElement;
 	private videoId: string;
+	private seekInterval: Timer | null = null;
 
 	constructor(ytVideoPlayer: YtVideoPlayer, videoId: string) {
 		this.iframe = document.createElement("iframe");
@@ -55,9 +56,50 @@ export class EmbeddedPlayer {
 		) as HTMLVideoElement | null;
 	}
 
+	private fastForward() {
+		if (!this.player) return;
+
+		this.seekInterval = setInterval(() => {
+			if (!this.player) return;
+
+			this.player.playbackRate = 2;
+		}, 100);
+	}
+
+	private stopFastForward() {
+		if (this.seekInterval) {
+			clearInterval(this.seekInterval);
+		}
+
+		if (!this.player) return;
+
+		this.player.playbackRate = 1;
+	}
+
+	private pressHoldTo2xPlayback() {
+		/**
+		 * Wait for the player to be ready
+		 * TODO: fix player paused when mouseup
+		 * TODO: visual indicator of fast forward
+		 */
+		waitFor(2000).then(() => {
+			if (!this.player) return;
+
+			this.player.addEventListener("mousedown", () => {
+				this.fastForward();
+			});
+
+			this.player.addEventListener("mouseup", () => {
+				this.stopFastForward();
+			});
+		});
+	}
+
 	render() {
 		this.prepare();
 		this.ytVideoPlayer.mount(this.iframe);
+
+		this.pressHoldTo2xPlayback();
 	}
 
 	destroy() {

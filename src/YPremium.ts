@@ -1,6 +1,6 @@
 import { EmbeddedPlayer } from "./EmbeddedPlayer";
 import { YtVideoPlayer } from "./YtVideoPlayer";
-import { getVideoPlayer, isVideoWatchPage } from "./utils";
+import { getVideoPlayerContainer, isVideoWatchPage } from "./utils";
 
 export class YPremium {
 	private currentUrl: URL;
@@ -48,20 +48,15 @@ export class YPremium {
 	}
 
 	async init() {
-		if (!this.isWatchUrl) {
-			this.embeddedPlayer?.destroy();
-			return;
-		}
-
-		const videoPlayer = await getVideoPlayer();
-
-		if (!videoPlayer || !this.videoId) {
-			return;
-		}
-
 		this.embeddedPlayer?.destroy();
 
-		this.ytVideoPlayer = new YtVideoPlayer(videoPlayer);
+		if (!this.isWatchUrl) return;
+
+		const videoPlayerContainer = await getVideoPlayerContainer();
+
+		if (!videoPlayerContainer || !this.videoId) return;
+
+		this.ytVideoPlayer = new YtVideoPlayer(videoPlayerContainer);
 		await this.ytVideoPlayer.registerEvents();
 		this.embeddedPlayer = new EmbeddedPlayer(this.ytVideoPlayer, this.videoId);
 		this.embeddedPlayer.render();

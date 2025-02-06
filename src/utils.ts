@@ -60,5 +60,5 @@ export const getCurrentVideoId = (url: string) =>
 export const isVideoWatchPage = (url: URL) =>
 	/\/watch/.test(url.pathname) && Boolean(url.searchParams.get("v"));
 
-export const getVideoPlayer = async () =>
+export const getVideoPlayerContainer = async () =>
 	waitForElement("#movie_player.html5-video-player");
