@@ -1,3 +1,4 @@
+import { Keyboard } from "./Keyboard";
 import type { YtVideoPlayer } from "./YtVideoPlayer";
 import { isVideoWatchPage, waitFor } from "./utils";
 
@@ -6,6 +7,7 @@ export class EmbeddedPlayer {
 	private iframe: HTMLIFrameElement;
 	private videoId: string;
 	private seekInterval: Timer | null = null;
+	private seekValue = 5; // 5 seconds https://support.google.com/youtube/answer/7631406?hl=en
 
 	constructor(ytVideoPlayer: YtVideoPlayer, videoId: string) {
 		this.iframe = document.createElement("iframe");
@@ -95,11 +97,43 @@ export class EmbeddedPlayer {
 		});
 	}
 
+	get duration() {
+		if (!this.player) return 0;
+
+		return this.player.duration ?? 0;
+	}
+
+	seekForward() {
+		if (!this.player || !this.duration) return;
+
+		if (this.player.currentTime + this.seekValue > this.duration) {
+			this.player.currentTime = this.duration;
+		} else {
+			this.player.currentTime += this.seekValue;
+		}
+	}
+
+	seekBackward() {
+		if (!this.player || !this.duration) return;
+
+		if (this.player.currentTime - this.seekValue < 0) {
+			this.player.currentTime = 0;
+		} else {
+			this.player.currentTime -= this.seekValue;
+		}
+	}
+
 	render() {
 		this.prepare();
 		this.ytVideoPlayer.mount(this.iframe);
 
 		this.pressHoldTo2xPlayback();
+
+		// register keyboard events after player is ready
+		waitFor(2000).then(() => {
+			Keyboard.onRightArrowPressed(() => this.seekForward());
+			Keyboard.onLeftArrowPressed(() => this.seekBackward());
+		});
 	}
 
 	destroy() {
