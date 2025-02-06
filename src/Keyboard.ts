@@ -26,4 +26,12 @@ export const Keyboard = {
 			}
 		});
 	},
+
+	onMKeyPressed: (cb: () => void) => {
+		document.addEventListener("keydown", (e) => {
+			if (e.key === "m" && isNotContentEditable(e.target)) {
+				cb();
+			}
+		});
+	},
 };

@@ -133,6 +133,12 @@ export class EmbeddedPlayer {
 		}
 	}
 
+	toggleMute() {
+		if (!this.player) return;
+
+		this.player.muted = !this.player.muted;
+	}
+
 	render() {
 		this.prepare();
 		this.ytVideoPlayer.mount(this.iframe);
@@ -144,6 +150,7 @@ export class EmbeddedPlayer {
 			Keyboard.onRightArrowPressed(() => this.seekForward());
 			Keyboard.onLeftArrowPressed(() => this.seekBackward());
 			Keyboard.onSpacePressed(() => this.togglePlayMode());
+			Keyboard.onMKeyPressed(() => this.toggleMute());
 		});
 	}
 
