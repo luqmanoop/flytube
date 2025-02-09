@@ -63,6 +63,7 @@ export class YPremium {
 
 		this.embeddedPlayer.onFailedToLoad((intervalId) => {
 			this.ytVideoPlayer?.setIsAllowedToPlay(true);
+			this.ytVideoPlayer?.unmute();
 			this.ytVideoPlayer?.play();
 			clearInterval(intervalId);
 			this.embeddedPlayer?.destroy();
