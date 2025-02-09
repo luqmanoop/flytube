@@ -100,7 +100,10 @@ export class EmbeddedPlayer {
 		waitFor(2000).then(() => {
 			if (!this.player) return;
 
-			this.player.addEventListener("mousedown", () => {
+			this.player.addEventListener("mousedown", (e) => {
+				// ignore if it's a right click
+				if (e.button === 2) return;
+
 				this.fastForward();
 			});
 
