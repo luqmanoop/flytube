@@ -1,12 +1,14 @@
 import type { YtVideoPlayer } from "./YtVideoPlayer";
+import featureFlags from "./featureFlags";
 import { isVideoWatchPage, waitFor } from "./utils";
 
 export class EmbeddedPlayer {
 	private ytVideoPlayer: YtVideoPlayer;
 	private iframe: HTMLIFrameElement;
 	private videoId: string;
-	private seekInterval: Timer | null = null;
+	private seekInterval: Timer | undefined;
 	private seekValue = 5; // 5 seconds https://support.google.com/youtube/answer/7631406?hl=en
+	private videoProgressInterval: Timer | undefined;
 
 	constructor(ytVideoPlayer: YtVideoPlayer, videoId: string) {
 		this.iframe = document.createElement("iframe");
@@ -21,6 +23,15 @@ export class EmbeddedPlayer {
 				}
 			},
 		);
+
+		if (featureFlags.keepWatchHistorySynced) {
+			this.videoProgressInterval = setInterval(() => {
+				if (!this.player || !this.ytVideoPlayer || this.isFinishedPlaying)
+					return;
+
+				this.ytVideoPlayer.currentTime = this.player.currentTime;
+			}, 5000);
+		}
 	}
 
 	prepare() {
@@ -29,8 +40,7 @@ export class EmbeddedPlayer {
       height: 100%;
       position: absolute;
       top: 0;
-      left: 0;
-      right: 0;
+      left: 500px;
       z-index: 9999;
       border-radius: 12px;
   `;
@@ -68,13 +78,17 @@ export class EmbeddedPlayer {
 	}
 
 	private stopFastForward() {
-		if (this.seekInterval) {
-			clearInterval(this.seekInterval);
-		}
+		clearInterval(this.seekInterval);
 
 		if (!this.player) return;
 
 		this.player.playbackRate = 1;
+	}
+
+	private get isFinishedPlaying() {
+		if (!this.player) return false;
+
+		return this.player.currentTime >= this.duration;
 	}
 
 	private holdTo2xPlayback() {
@@ -171,6 +185,8 @@ export class EmbeddedPlayer {
 	}
 
 	destroy() {
+		clearInterval(this.videoProgressInterval);
+
 		this.iframe.remove();
 	}
 

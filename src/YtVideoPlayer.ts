@@ -1,5 +1,5 @@
+import featureFlags from "./featureFlags";
 import { waitFor, waitForElement } from "./utils";
-
 export class YtVideoPlayer {
 	private playerContainer: HTMLElement;
 	private player: HTMLVideoElement;
@@ -37,14 +37,48 @@ export class YtVideoPlayer {
 		return !this.player.paused;
 	}
 
-	async registerEvents() {
-		await waitFor(500);
+	get isMuted() {
+		return this.player.muted;
+	}
 
-		this.pause();
+	mute() {
+		console.log("mute", this.isMuted);
+		if (!this.isMuted) {
+			this.player.muted = true;
+		}
+	}
+
+	unmute() {
+		console.log("unmute", this.isMuted);
+		if (this.isMuted) {
+			this.player.muted = false;
+		}
+	}
+
+	get currentTime() {
+		return this.player.currentTime;
+	}
+
+	set currentTime(value: number) {
+		this.player.currentTime = value;
+	}
+
+	private pauseOrMute() {
+		if (featureFlags.keepWatchHistorySynced) {
+			this.mute();
+		} else {
+			this.pause();
+		}
+	}
+
+	async registerEvents() {
+		await waitFor(2000);
+
+		this.pauseOrMute();
 
 		// pause background video/ads when it starts playing
 		this.player.addEventListener("playing", () => {
-			this.pause();
+			this.pauseOrMute();
 		});
 	}
 
