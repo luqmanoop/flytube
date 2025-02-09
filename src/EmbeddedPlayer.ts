@@ -1,4 +1,3 @@
-import { Keyboard } from "./Keyboard";
 import type { YtVideoPlayer } from "./YtVideoPlayer";
 import { isVideoWatchPage, waitFor } from "./utils";
 
@@ -78,7 +77,7 @@ export class EmbeddedPlayer {
 		this.player.playbackRate = 1;
 	}
 
-	private pressHoldTo2xPlayback() {
+	private holdTo2xPlayback() {
 		/**
 		 * Wait for the player to be ready
 		 * TODO: fix player paused when mouseup
@@ -103,6 +102,16 @@ export class EmbeddedPlayer {
 		return this.player.duration ?? 0;
 	}
 
+	togglePlayMode() {
+		if (!this.player) return;
+
+		if (this.player.paused) {
+			this.player.play();
+		} else {
+			this.player.pause();
+		}
+	}
+
 	seekForward() {
 		if (!this.player || !this.duration) return;
 
@@ -123,13 +132,22 @@ export class EmbeddedPlayer {
 		}
 	}
 
-	togglePlayMode() {
+	focusPlayer(e?: MouseEvent | KeyboardEvent) {
 		if (!this.player) return;
 
-		if (this.player.paused) {
-			this.player.play();
+		const element = e?.target as HTMLElement | null;
+
+		if (element?.contentEditable === "true") {
+			return;
+		}
+
+		const isReadyToReceiveFocus = this.player.getAttribute("tabindex") === "0";
+
+		if (isReadyToReceiveFocus) {
+			this.player.focus();
 		} else {
-			this.player.pause();
+			this.player.setAttribute("tabindex", "0");
+			this.player.focus();
 		}
 	}
 
@@ -143,14 +161,12 @@ export class EmbeddedPlayer {
 		this.prepare();
 		this.ytVideoPlayer.mount(this.iframe);
 
-		this.pressHoldTo2xPlayback();
+		this.holdTo2xPlayback();
 
-		// register keyboard events after player is ready
 		waitFor(2000).then(() => {
-			Keyboard.onRightArrowPressed(() => this.seekForward());
-			Keyboard.onLeftArrowPressed(() => this.seekBackward());
-			Keyboard.onSpacePressed(() => this.togglePlayMode());
-			Keyboard.onMKeyPressed(() => this.toggleMute());
+			this.focusPlayer();
+
+			document.addEventListener("keydown", () => this.focusPlayer());
 		});
 	}
 
