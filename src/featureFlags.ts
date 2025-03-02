@@ -1,4 +1,5 @@
 export default {
 	keepWatchHistorySynced: true,
-	playerSplitView: false,
+	playerSplitView: true,
+	showEmbeddedPlayer: false,
 };

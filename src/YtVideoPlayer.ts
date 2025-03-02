@@ -63,6 +63,10 @@ export class YtVideoPlayer {
 		this.player.currentTime = value;
 	}
 
+	get duration() {
+		return this.player.duration || 0;
+	}
+
 	private pauseOrMute() {
 		if (featureFlags.keepWatchHistorySynced) {
 			this.mute();
@@ -71,14 +75,36 @@ export class YtVideoPlayer {
 		}
 	}
 
+	get isAdsVideo() {
+		return (
+			this.playerContainer.classList.contains("ad-showing") && !this.isSurvey
+		);
+	}
+
+	get isSurvey() {
+		return document.querySelector(".ytp-ad-survey") !== null;
+	}
+
 	async registerEvents() {
 		await waitFor(2000);
 
-		this.pauseOrMute();
+		setInterval(() => {
+			if (this.isAdsVideo) {
+				console.log("skipping ads with duration", this.duration);
+				this.currentTime = this.duration;
+			} else if (this.isSurvey) {
+				console.log("skipping survey");
+				// this.currentTime = this.duration;
+			}
+
+			console.log(this.duration, this.currentTime);
+		}, 500);
+
+		// this.pauseOrMute();
 
 		// pause background video/ads when it starts playing
 		this.player.addEventListener("playing", () => {
-			this.pauseOrMute();
+			// this.pauseOrMute();
 		});
 	}
 
