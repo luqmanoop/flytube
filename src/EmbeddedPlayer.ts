@@ -2,6 +2,9 @@ import type { YtVideoPlayer } from "./YtVideoPlayer";
 import featureFlags from "./featureFlags";
 import { isVideoWatchPage, waitFor } from "./utils";
 
+/**
+ * @description Embedded YouTube video player overlayed on top of the main YouTube video player.
+ */
 export class EmbeddedPlayer {
 	private ytVideoPlayer: YtVideoPlayer;
 	private iframe: HTMLIFrameElement;
@@ -26,11 +29,16 @@ export class EmbeddedPlayer {
 
 		if (featureFlags.keepWatchHistorySynced) {
 			this.videoProgressInterval = setInterval(() => {
-				if (!this.player || !this.ytVideoPlayer || this.isFinishedPlaying)
+				if (
+					!this.player ||
+					this.isFinishedPlaying ||
+					!this.ytVideoPlayer.isAllowedToMovePlayhead
+				) {
 					return;
+				}
 
 				this.ytVideoPlayer.currentTime = this.player.currentTime;
-			}, 5000);
+			}, 15000);
 		}
 	}
 
@@ -43,7 +51,7 @@ export class EmbeddedPlayer {
 				featureFlags.playerSplitView
 					? `
 				top: 0;
-      left: 50%;
+      left: 25%;
 				`
 					: `
 				top: 0;

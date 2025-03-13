@@ -1,5 +1,9 @@
 import featureFlags from "./featureFlags";
-import { waitFor, waitForElement } from "./utils";
+import { waitFor } from "./utils";
+
+/**
+ * @description This class is used to control the main YouTube video player.
+ */
 export class YtVideoPlayer {
 	private playerContainer: HTMLElement;
 	private player: HTMLVideoElement;
@@ -42,7 +46,6 @@ export class YtVideoPlayer {
 	}
 
 	mute() {
-		console.log("mute", this.isMuted);
 		if (!this.isMuted) {
 			this.player.muted = true;
 		}
@@ -55,12 +58,26 @@ export class YtVideoPlayer {
 		}
 	}
 
+	get isAdsVideo() {
+		return (
+			this.playerContainer.classList.contains("ad-showing") && !this.isSurvey
+		);
+	}
+
+	get isSurvey() {
+		return document.querySelector(".ytp-ad-survey") !== null;
+	}
+
 	get currentTime() {
 		return this.player.currentTime;
 	}
 
 	set currentTime(value: number) {
 		this.player.currentTime = value;
+	}
+
+	get isAllowedToMovePlayhead() {
+		return this.player && !this.isAdsVideo && !this.isSurvey;
 	}
 
 	private pauseOrMute() {
@@ -76,7 +93,7 @@ export class YtVideoPlayer {
 
 		this.pauseOrMute();
 
-		// pause background video/ads when it starts playing
+		// pause/mute background video/ads when it starts playing
 		this.player.addEventListener("playing", () => {
 			this.pauseOrMute();
 		});
