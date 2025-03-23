@@ -29,11 +29,12 @@ export class EmbeddedPlayer {
 
 		if (featureFlags.keepWatchHistorySynced) {
 			this.videoProgressInterval = setInterval(() => {
-				if (
-					!this.player ||
-					this.isFinishedPlaying ||
-					!this.ytVideoPlayer.isAllowedToMovePlayhead
-				) {
+				if (!this.player || !this.ytVideoPlayer.isAllowedToMovePlayhead) {
+					return;
+				}
+
+				if (this.isFinishedPlaying) {
+					this.ytVideoPlayer.currentTime = this.player.currentTime;
 					return;
 				}
 
