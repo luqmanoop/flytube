@@ -1,8 +1,5 @@
-import featureFlags from "./featureFlags";
-import { waitFor } from "./utils";
-
 /**
- * @description This class is used to control the main YouTube video player.
+ * @description Manages the main YouTube video player.
  */
 export class YtVideoPlayer {
 	private playerContainer: HTMLElement;
@@ -81,25 +78,6 @@ export class YtVideoPlayer {
 
 	get isAllowedToMovePlayhead() {
 		return this.player && !this.isAdsVideo && !this.isSurvey;
-	}
-
-	private pauseOrMute() {
-		if (featureFlags.keepWatchHistorySynced) {
-			this.mute();
-		} else {
-			this.pause();
-		}
-	}
-
-	async registerEvents() {
-		await waitFor(2000);
-
-		this.pauseOrMute();
-
-		// pause/mute background video/ads when it starts playing
-		this.player.addEventListener("playing", () => {
-			this.pauseOrMute();
-		});
 	}
 
 	mount(node: HTMLElement) {
