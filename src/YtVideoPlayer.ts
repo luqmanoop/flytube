@@ -37,6 +37,10 @@ export class YtVideoPlayer {
 		this.isAllowedToPlay = value;
 	}
 
+	get allowedToPlay() {
+		return this.isAllowedToPlay;
+	}
+
 	isPlaying() {
 		return !this.player.paused;
 	}
@@ -52,7 +56,6 @@ export class YtVideoPlayer {
 	}
 
 	unmute() {
-		console.log("unmute", this.isMuted);
 		if (this.isMuted) {
 			this.player.muted = false;
 		}

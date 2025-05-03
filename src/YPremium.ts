@@ -1,7 +1,11 @@
 import { EmbeddedPlayer } from "./EmbeddedPlayer";
 import { YtVideoPlayer } from "./YtVideoPlayer";
+import featureFlags from "./featureFlags";
 import { getVideoPlayerContainer, isVideoWatchPage } from "./utils";
 
+/**
+ * @description handles when to show/destroy the embedded player.
+ */
 export class YPremium {
 	private currentUrl: URL;
 	private ytVideoPlayer: YtVideoPlayer | null = null;
@@ -11,6 +15,7 @@ export class YPremium {
 		this.currentUrl = new URL(location.href);
 
 		const style = document.createElement("style");
+		// remove ads slots
 		style.textContent = `
   ytd-ad-slot-renderer, .ytd-player-legacy-desktop-watch-ads-renderer, ytd-companion-slot-renderer, [target-id="engagement-panel-ads"] {
     display: none !important;
@@ -57,16 +62,25 @@ export class YPremium {
 		if (!videoPlayerContainer || !this.videoId) return;
 
 		this.ytVideoPlayer = new YtVideoPlayer(videoPlayerContainer);
-		await this.ytVideoPlayer.registerEvents();
+
 		this.embeddedPlayer = new EmbeddedPlayer(this.ytVideoPlayer, this.videoId);
 		this.embeddedPlayer.render();
 
+		// aggressively mute YtPlayer once the embedded player is rendered without any errors
+		const muteYtPlayerIntervalId = setInterval(() => {
+			if (!this.ytVideoPlayer?.allowedToPlay && !this.ytVideoPlayer?.isMuted) {
+				this.ytVideoPlayer?.mute();
+			}
+		}, 500);
+
 		this.embeddedPlayer.onFailedToLoad((intervalId) => {
-			this.ytVideoPlayer?.setIsAllowedToPlay(true);
-			this.ytVideoPlayer?.unmute();
-			this.ytVideoPlayer?.play();
 			clearInterval(intervalId);
+			clearInterval(muteYtPlayerIntervalId);
 			this.embeddedPlayer?.destroy();
+
+			this.ytVideoPlayer?.setIsAllowedToPlay(true);
+			this.ytVideoPlayer?.play();
+			this.ytVideoPlayer?.unmute();
 		});
 	}
 }
