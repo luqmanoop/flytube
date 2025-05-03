@@ -1,4 +1,4 @@
-import { EmbeddedPlayer, YtVideoPlayer } from ".";
+import { EmbeddedPlayer, YoutubeVideoPlayer } from ".";
 import {
 	getCurrentVideoId,
 	getVideoPlayerContainer,
@@ -9,7 +9,7 @@ let currentUrl: URL = new URL(location.href);
 let runningIntervalId: Timer | undefined;
 
 let embeddedVideoPlayer: EmbeddedPlayer;
-let youtubeVideoPlayer: YtVideoPlayer;
+let youtubeVideoPlayer: YoutubeVideoPlayer;
 
 const initialize = async (url = currentUrl) => {
 	try {
@@ -26,7 +26,7 @@ const initialize = async (url = currentUrl) => {
 			clearInterval(runningIntervalId);
 		}
 
-		youtubeVideoPlayer = new YtVideoPlayer(videoPlayerContainer);
+		youtubeVideoPlayer = new YoutubeVideoPlayer(videoPlayerContainer);
 		embeddedVideoPlayer = new EmbeddedPlayer(videoId);
 
 		if (!embeddedVideoPlayer.iframeElement) {

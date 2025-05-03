@@ -1,7 +1,7 @@
 /**
  * @description Manages the main YouTube video player.
  */
-export class YtVideoPlayer {
+export class YoutubeVideoPlayer {
 	private playerContainer: HTMLElement;
 	private player: HTMLVideoElement;
 	private isAllowedToPlay = false;

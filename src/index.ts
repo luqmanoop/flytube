@@ -1,2 +1,2 @@
-export * from "./YtVideoPlayer";
+export * from "./YoutubeVideoPlayer";
 export * from "./EmbeddedPlayer";
