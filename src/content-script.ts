@@ -1,4 +1,5 @@
 import { EmbeddedPlayer, YoutubeVideoPlayer } from ".";
+import { ComparisonSlider } from "./comparison-slider";
 import {
 	Settings,
 	getCurrentVideoId,
@@ -11,6 +12,7 @@ let currentUrl: URL = new URL(location.href);
 let runningIntervalId: Timer | undefined;
 
 let isBackgroundAdsEnabled: boolean;
+let isComparisonSliderEnabled: boolean;
 
 let embeddedVideoPlayer: EmbeddedPlayer;
 let youtubeVideoPlayer: YoutubeVideoPlayer;
@@ -41,8 +43,15 @@ const initialize = async (url = currentUrl) => {
 		youtubeVideoPlayer.mount(embeddedVideoPlayer.iframeElement);
 
 		isBackgroundAdsEnabled = await storage.get(Settings.allowBackgroundAds);
+		isComparisonSliderEnabled = await storage.get(
+			Settings.showComparisonSlider,
+		);
 
 		runningIntervalId = setInterval(() => {
+			if (isComparisonSliderEnabled) {
+				ComparisonSlider.init(videoPlayerContainer);
+			}
+
 			if (!youtubeVideoPlayer.allowedToPlay) {
 				youtubeVideoPlayer.mute();
 			}
@@ -87,12 +96,22 @@ window.navigation.addEventListener("navigate", ({ destination: { url } }) => {
 window.addEventListener("beforeunload", () => {
 	clearInterval(runningIntervalId);
 	embeddedVideoPlayer?.destroy();
+	ComparisonSlider.destroy();
 });
 
 chrome.storage.onChanged.addListener((changes) => {
 	for (const [key, { oldValue, newValue }] of Object.entries(changes)) {
-		if (key === Settings.allowBackgroundAds) {
-			isBackgroundAdsEnabled = newValue;
+		console.log("key", key, newValue);
+		switch (key) {
+			case Settings.allowBackgroundAds:
+				isBackgroundAdsEnabled = newValue;
+				break;
+			case Settings.showComparisonSlider:
+				isComparisonSliderEnabled = newValue;
+				if (!isComparisonSliderEnabled) {
+					ComparisonSlider.destroy();
+				}
+				break;
 		}
 	}
 });

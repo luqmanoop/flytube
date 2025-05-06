@@ -1,4 +1,3 @@
-import featureFlags from "./featureFlags";
 import { isVideoWatchPage, waitFor } from "./utils";
 
 /**
@@ -31,20 +30,11 @@ export class EmbeddedPlayer {
       width: 100%;
       height: 100%;
       position: absolute;
-			${
-				featureFlags.playerSplitView
-					? `
-				top: 0;
-      left: 25%;
-				`
-					: `
-				top: 0;
-				left: 0;
-				bottom: 0;
-				right: 0;
-				`
-			}
-      z-index: 9999;
+			top: 0;
+			left: var(--position);
+			bottom: 0;
+			right: 0;
+			z-index: 99999 !important;
       border-radius: 12px;
   `;
 		this.iframe.setAttribute(
@@ -96,6 +86,12 @@ export class EmbeddedPlayer {
 		if (!this.player) return false;
 
 		return this.player.currentTime >= this.duration;
+	}
+
+	get isPaused() {
+		if (!this.player) return false;
+
+		return !!(this.player.duration && this.player.paused);
 	}
 
 	private holdTo2xPlayback() {
