@@ -11,6 +11,10 @@ declare global {
 	}
 }
 
+export const MESSAGE_TYPES = {
+	ALLOW_BACKGROUND_ADS: "allow-background-ads",
+};
+
 export function $<T extends Element>(selector: string) {
 	return document.querySelector<T>(selector);
 }

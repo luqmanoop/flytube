@@ -1,4 +1,23 @@
+import { useEffect, useState } from "react";
+
+import { MESSAGE_TYPES, storage } from "../utils";
+
 export function App() {
+  const [allowBackgroundAds, setAllowBackgroundAds] = useState(true);
+
+  useEffect(() => {
+    storage
+      .get(MESSAGE_TYPES.ALLOW_BACKGROUND_ADS)
+      .then((isBackgroundAdsEnabled) => {
+        setAllowBackgroundAds(!!isBackgroundAdsEnabled);
+      });
+  }, []);
+
+  const handleAllowBackgroundAds = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAllowBackgroundAds(e.target.checked);
+    storage.set(MESSAGE_TYPES.ALLOW_BACKGROUND_ADS, e.target.checked);
+  };
+
   return (
     <div className="antialiased text-gray-900 dark:text-slate-300 tracking-tight bg-light dark:bg-slate-950 w-96 px-4 pt-4 pb-4">
       <div className="flex flex-col gap-2">
@@ -16,7 +35,12 @@ export function App() {
         <div className="border-t border-gray-200 dark:border-slate-700 mt-2 py-4 flex flex-col gap-2">
           <h3 className="text-lg font-bold mb-4">Settings</h3>
           <div className="flex items-start gap-2 select-none">
-            <input type="checkbox" id="background-ads" className="" />
+            <input
+              type="checkbox"
+              id="background-ads"
+              checked={allowBackgroundAds}
+              onChange={handleAllowBackgroundAds}
+            />
             <div className="flex flex-col gap-1 relative -top-[5px]">
               <label htmlFor="background-ads" className="text-base">
                 Allow background ads

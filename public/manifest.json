@@ -13,11 +13,10 @@
     "default_title": "BrewTube (Ad-free YouTube, no subscription)",
     "default_popup": "popup/index.html"
   },
-  "options_page": "options/index.html",
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": [],
+  "permissions": ["storage"],
   "content_scripts": [
     {
       "matches": ["https://www.youtube.com/*"],

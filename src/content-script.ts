@@ -72,3 +72,9 @@ window.navigation.addEventListener("navigate", ({ destination: { url } }) => {
 		initialize(currentUrl);
 	}
 });
+
+// cleanup
+window.addEventListener("beforeunload", () => {
+	clearInterval(runningIntervalId);
+	embeddedVideoPlayer?.destroy();
+});
