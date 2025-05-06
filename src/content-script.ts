@@ -1,8 +1,10 @@
 import { EmbeddedPlayer, YoutubeVideoPlayer } from ".";
 import {
+	MESSAGE_TYPES,
 	getCurrentVideoId,
 	getVideoPlayerContainer,
 	isVideoWatchPage,
+	storage,
 } from "./utils";
 
 let currentUrl: URL = new URL(location.href);
@@ -36,20 +38,23 @@ const initialize = async (url = currentUrl) => {
 
 		youtubeVideoPlayer.mount(embeddedVideoPlayer.iframeElement);
 
-		runningIntervalId = setInterval(() => {
+		const isBackgroundAdsEnabled = await storage.get(
+			MESSAGE_TYPES.ALLOW_BACKGROUND_ADS,
+		);
+
+		runningIntervalId = setInterval(async () => {
 			if (!youtubeVideoPlayer.allowedToPlay && !youtubeVideoPlayer.isMuted) {
 				youtubeVideoPlayer.mute();
 			}
 
 			if (
 				embeddedVideoPlayer.isFinishedPlaying ||
-				embeddedVideoPlayer.currentTime > 10 // don't spook youtube too early or give them an impression that we're skipping ads (we're not)
+				(!isBackgroundAdsEnabled && embeddedVideoPlayer.currentTime > 10) // don't spook youtube too early or give them an impression that we're skipping ads (we're not)
 			) {
 				youtubeVideoPlayer.pause();
 			}
 		}, 500);
 
-		//
 		embeddedVideoPlayer.onFailedToLoad(() => {
 			embeddedVideoPlayer?.destroy();
 
