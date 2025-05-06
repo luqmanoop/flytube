@@ -11,8 +11,9 @@ declare global {
 	}
 }
 
-export const MESSAGE_TYPES = {
-	ALLOW_BACKGROUND_ADS: "allow-background-ads",
+export const Settings = {
+	allowBackgroundAds: "allow-background-ads",
+	showComparisonSlider: "show-comparison-slider",
 };
 
 export function $<T extends Element>(selector: string) {

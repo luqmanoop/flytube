@@ -1,6 +1,6 @@
 import { EmbeddedPlayer, YoutubeVideoPlayer } from ".";
 import {
-	MESSAGE_TYPES,
+	Settings,
 	getCurrentVideoId,
 	getVideoPlayerContainer,
 	isVideoWatchPage,
@@ -40,12 +40,10 @@ const initialize = async (url = currentUrl) => {
 
 		youtubeVideoPlayer.mount(embeddedVideoPlayer.iframeElement);
 
-		isBackgroundAdsEnabled = await storage.get(
-			MESSAGE_TYPES.ALLOW_BACKGROUND_ADS,
-		);
+		isBackgroundAdsEnabled = await storage.get(Settings.allowBackgroundAds);
 
 		runningIntervalId = setInterval(() => {
-			if (!youtubeVideoPlayer.allowedToPlay && !youtubeVideoPlayer.isMuted) {
+			if (!youtubeVideoPlayer.allowedToPlay) {
 				youtubeVideoPlayer.mute();
 			}
 
@@ -93,7 +91,7 @@ window.addEventListener("beforeunload", () => {
 
 chrome.storage.onChanged.addListener((changes) => {
 	for (const [key, { oldValue, newValue }] of Object.entries(changes)) {
-		if (key === MESSAGE_TYPES.ALLOW_BACKGROUND_ADS) {
+		if (key === Settings.allowBackgroundAds) {
 			isBackgroundAdsEnabled = newValue;
 		}
 	}

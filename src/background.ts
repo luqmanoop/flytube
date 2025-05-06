@@ -1,13 +1,13 @@
-import { MESSAGE_TYPES, storage } from "./utils";
+import { Settings, storage } from "./utils";
 
 chrome.runtime.onInstalled.addListener(async ({ reason }) => {
 	if (reason === chrome.runtime.OnInstalledReason.INSTALL) {
 		const isBackgroundAdsEnabled = await storage.get(
-			MESSAGE_TYPES.ALLOW_BACKGROUND_ADS,
+			Settings.allowBackgroundAds,
 		);
 
 		if (isBackgroundAdsEnabled === undefined) {
-			await storage.set(MESSAGE_TYPES.ALLOW_BACKGROUND_ADS, true);
+			await storage.set(Settings.allowBackgroundAds, true);
 		}
 	}
 

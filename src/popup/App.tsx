@@ -1,21 +1,33 @@
 import { useEffect, useState } from "react";
 
-import { MESSAGE_TYPES, storage } from "../utils";
+import { Settings, storage } from "../utils";
 
 export function App() {
   const [allowBackgroundAds, setAllowBackgroundAds] = useState(true);
+  const [allowComparisonSlider, setAllowComparisonSlider] = useState(true);
 
   useEffect(() => {
+    storage.get(Settings.allowBackgroundAds).then((isBackgroundAdsEnabled) => {
+      setAllowBackgroundAds(!!isBackgroundAdsEnabled);
+    });
+
     storage
-      .get(MESSAGE_TYPES.ALLOW_BACKGROUND_ADS)
-      .then((isBackgroundAdsEnabled) => {
-        setAllowBackgroundAds(!!isBackgroundAdsEnabled);
+      .get(Settings.showComparisonSlider)
+      .then((isComparisonSliderEnabled) => {
+        setAllowComparisonSlider(!!isComparisonSliderEnabled);
       });
   }, []);
 
   const handleAllowBackgroundAds = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAllowBackgroundAds(e.target.checked);
-    storage.set(MESSAGE_TYPES.ALLOW_BACKGROUND_ADS, e.target.checked);
+    storage.set(Settings.allowBackgroundAds, e.target.checked);
+  };
+
+  const handleAllowComparisonSlider = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setAllowComparisonSlider(e.target.checked);
+    storage.set(Settings.showComparisonSlider, e.target.checked);
   };
 
   return (
@@ -48,6 +60,25 @@ export function App() {
               <p className="text-xs text-gray-500 dark:text-slate-400">
                 Support creators by allowing ads to play in the background. You
                 won't see ads, but creators will still get paid.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-2 select-none">
+            <input
+              type="checkbox"
+              id="comparison-slider"
+              checked={allowComparisonSlider}
+              onChange={handleAllowComparisonSlider}
+            />
+            <div className="flex flex-col gap-1 relative -top-[5px]">
+              <label htmlFor="comparison-slider" className="text-base">
+                Show comparison slider
+              </label>
+              <p className="text-xs text-gray-500 dark:text-slate-400">
+                See a before/after slider to compare the original & the ad-free
+                version of currently playing video. Disable to show video
+                controls.
               </p>
             </div>
           </div>
