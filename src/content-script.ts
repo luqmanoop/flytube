@@ -10,6 +10,8 @@ import {
 let currentUrl: URL = new URL(location.href);
 let runningIntervalId: Timer | undefined;
 
+let isBackgroundAdsEnabled: boolean;
+
 let embeddedVideoPlayer: EmbeddedPlayer;
 let youtubeVideoPlayer: YoutubeVideoPlayer;
 
@@ -38,18 +40,23 @@ const initialize = async (url = currentUrl) => {
 
 		youtubeVideoPlayer.mount(embeddedVideoPlayer.iframeElement);
 
-		const isBackgroundAdsEnabled = await storage.get(
+		isBackgroundAdsEnabled = await storage.get(
 			MESSAGE_TYPES.ALLOW_BACKGROUND_ADS,
 		);
 
-		runningIntervalId = setInterval(async () => {
+		runningIntervalId = setInterval(() => {
 			if (!youtubeVideoPlayer.allowedToPlay && !youtubeVideoPlayer.isMuted) {
 				youtubeVideoPlayer.mute();
 			}
 
+			if (isBackgroundAdsEnabled && !embeddedVideoPlayer.isPaused) {
+				youtubeVideoPlayer.play();
+			}
+
 			if (
 				embeddedVideoPlayer.isFinishedPlaying ||
-				(!isBackgroundAdsEnabled && embeddedVideoPlayer.currentTime > 10) // don't spook youtube too early or give them an impression that we're skipping ads (we're not)
+				embeddedVideoPlayer.isPaused ||
+				!isBackgroundAdsEnabled
 			) {
 				youtubeVideoPlayer.pause();
 			}
@@ -82,4 +89,12 @@ window.navigation.addEventListener("navigate", ({ destination: { url } }) => {
 window.addEventListener("beforeunload", () => {
 	clearInterval(runningIntervalId);
 	embeddedVideoPlayer?.destroy();
+});
+
+chrome.storage.onChanged.addListener((changes) => {
+	for (const [key, { oldValue, newValue }] of Object.entries(changes)) {
+		if (key === MESSAGE_TYPES.ALLOW_BACKGROUND_ADS) {
+			isBackgroundAdsEnabled = newValue;
+		}
+	}
 });
