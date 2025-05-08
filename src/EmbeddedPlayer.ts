@@ -13,19 +13,6 @@ export class EmbeddedPlayer {
 		this.iframe = document.createElement("iframe");
 		this.videoId = videoId;
 
-		window.navigation.addEventListener(
-			"navigate",
-			({ destination: { url } }) => {
-				if (!isVideoWatchPage(new URL(url))) {
-					this.destroy();
-				}
-			},
-		);
-
-		this.prepare();
-	}
-
-	private prepare() {
 		this.iframe.style.cssText = `
       width: 100%;
       height: 100%;
