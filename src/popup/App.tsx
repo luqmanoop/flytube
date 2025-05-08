@@ -45,7 +45,7 @@ export function App() {
           </p>
         </div>
         <div className="border-t border-gray-200 dark:border-slate-700 mt-2 py-4 flex flex-col gap-2">
-          <h3 className="text-lg font-bold mb-4">Settings</h3>
+          <h3 className="text-lg font-bold mb-3">Settings</h3>
           <div className="flex items-start gap-2 select-none">
             <input
               type="checkbox"

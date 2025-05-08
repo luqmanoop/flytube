@@ -188,11 +188,12 @@ export class EmbeddedPlayer {
 	}
 
 	onFailedToLoad(cb: () => void) {
-		const interval = setInterval(() => {
-			if (this.errorContent) {
-				clearInterval(interval);
-				cb();
-			}
-		}, 500);
+		const errorCallback = () => this.errorContent && cb();
+
+		const onIframeLoad = new Promise((resolve) => {
+			this.iframe.addEventListener("load", () => resolve(true));
+		});
+
+		onIframeLoad.then(errorCallback).catch(errorCallback).catch(errorCallback);
 	}
 }

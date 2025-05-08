@@ -90,6 +90,8 @@ export const ComparisonSlider = {
 		this.slider.innerHTML = htmlTemplate;
 		container.appendChild(this.slider);
 
+		container.style.setProperty("--position", "0%");
+
 		this.slider
 			?.querySelector(".slider")
 			?.addEventListener("input", (e: Event) => {
