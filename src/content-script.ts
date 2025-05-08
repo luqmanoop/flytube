@@ -1,11 +1,10 @@
 import { EmbeddedPlayer, YoutubeVideoPlayer } from ".";
 import { ComparisonSlider } from "./comparison-slider";
+import { Settings, getSettings } from "./settings";
 import {
-	Settings,
 	getCurrentVideoId,
 	getVideoPlayerContainer,
 	isVideoWatchPage,
-	storage,
 } from "./utils";
 
 let currentUrl: URL = new URL(location.href);
@@ -42,10 +41,9 @@ const initialize = async (url = currentUrl) => {
 
 		youtubeVideoPlayer.mount(embeddedVideoPlayer.iframeElement);
 
-		isBackgroundAdsEnabled = await storage.get(Settings.allowBackgroundAds);
-		isComparisonSliderEnabled = await storage.get(
-			Settings.showComparisonSlider,
-		);
+		const settings = await getSettings();
+		isBackgroundAdsEnabled = settings[Settings.allowBackgroundAds];
+		isComparisonSliderEnabled = settings[Settings.showComparisonSlider];
 
 		runningIntervalId = setInterval(() => {
 			if (isComparisonSliderEnabled) {
@@ -101,7 +99,6 @@ window.addEventListener("beforeunload", () => {
 
 chrome.storage.onChanged.addListener((changes) => {
 	for (const [key, { oldValue, newValue }] of Object.entries(changes)) {
-		console.log("key", key, newValue);
 		switch (key) {
 			case Settings.allowBackgroundAds:
 				isBackgroundAdsEnabled = newValue;

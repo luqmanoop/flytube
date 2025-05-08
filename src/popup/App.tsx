@@ -1,33 +1,27 @@
 import { useEffect, useState } from "react";
 
-import { Settings, storage } from "../utils";
+import { getSettings, SettingsConfig } from "src/settings";
+import { storage } from "src/utils";
 
 export function App() {
-  const [allowBackgroundAds, setAllowBackgroundAds] = useState(true);
-  const [allowComparisonSlider, setAllowComparisonSlider] = useState(true);
+  const [settings, setSettings] = useState<Partial<Record<string, boolean>>>(
+    {}
+  );
 
   useEffect(() => {
-    storage.get(Settings.allowBackgroundAds).then((isBackgroundAdsEnabled) => {
-      setAllowBackgroundAds(!!isBackgroundAdsEnabled);
+    getSettings().then((_settings) => {
+      if (_settings) {
+        setSettings(_settings);
+      }
     });
-
-    storage
-      .get(Settings.showComparisonSlider)
-      .then((isComparisonSliderEnabled) => {
-        setAllowComparisonSlider(!!isComparisonSliderEnabled);
-      });
   }, []);
 
-  const handleAllowBackgroundAds = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAllowBackgroundAds(e.target.checked);
-    storage.set(Settings.allowBackgroundAds, e.target.checked);
-  };
-
-  const handleAllowComparisonSlider = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setAllowComparisonSlider(e.target.checked);
-    storage.set(Settings.showComparisonSlider, e.target.checked);
+  const handleSettingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    storage.set(e.target.name, e.target.checked);
+    setSettings({
+      ...settings,
+      [e.target.name]: e.target.checked,
+    });
   };
 
   return (
@@ -46,42 +40,28 @@ export function App() {
         </div>
         <div className="border-t border-gray-200 dark:border-slate-700 mt-2 py-4 flex flex-col gap-2">
           <h3 className="text-lg font-bold mb-3">Settings</h3>
-          <div className="flex items-start gap-2 select-none">
-            <input
-              type="checkbox"
-              id="background-ads"
-              checked={allowBackgroundAds}
-              onChange={handleAllowBackgroundAds}
-            />
-            <div className="flex flex-col gap-1 relative -top-[5px]">
-              <label htmlFor="background-ads" className="text-base">
-                Allow background ads
-              </label>
-              <p className="text-xs text-gray-500 dark:text-slate-400">
-                Support creators by allowing ads to play in the background. You
-                won't see ads, but creators will still get paid.
-              </p>
+          {SettingsConfig.map((setting) => (
+            <div
+              key={setting.id}
+              className="flex items-start gap-2 select-none"
+            >
+              <input
+                type="checkbox"
+                id={setting.id}
+                name={setting.id}
+                checked={settings[setting.id] ?? false}
+                onChange={handleSettingChange}
+              />
+              <div className="flex flex-col gap-1 relative -top-[5px]">
+                <label htmlFor={setting.id} className="text-base">
+                  {setting.title}
+                </label>
+                <p className="text-xs text-gray-500 dark:text-slate-400">
+                  {setting.description}
+                </p>
+              </div>
             </div>
-          </div>
-
-          <div className="flex items-start gap-2 select-none">
-            <input
-              type="checkbox"
-              id="comparison-slider"
-              checked={allowComparisonSlider}
-              onChange={handleAllowComparisonSlider}
-            />
-            <div className="flex flex-col gap-1 relative -top-[5px]">
-              <label htmlFor="comparison-slider" className="text-base">
-                Show comparison slider
-              </label>
-              <p className="text-xs text-gray-500 dark:text-slate-400">
-                See a before/after slider to compare the original & the ad-free
-                version of currently playing video. Disable to show video
-                controls.
-              </p>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>

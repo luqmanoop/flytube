@@ -11,11 +11,6 @@ declare global {
 	}
 }
 
-export const Settings = {
-	allowBackgroundAds: "allow-background-ads",
-	showComparisonSlider: "show-comparison-slider",
-};
-
 export function $<T extends Element>(selector: string) {
 	return document.querySelector<T>(selector);
 }
@@ -54,6 +49,9 @@ export const storage = {
 			.get(key)
 			.then((result) => result[key])
 			.catch(console.log);
+	},
+	getAll: async (keys: string[]) => {
+		return chrome.storage.sync.get(keys).catch(console.log);
 	},
 };
 
