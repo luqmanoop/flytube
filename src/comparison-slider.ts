@@ -1,3 +1,5 @@
+import { Settings } from "./settings";
+
 const css = document.createElement("style");
 css.innerHTML = `
 .slider {
@@ -98,6 +100,17 @@ export const ComparisonSlider = {
 				const target = e.target as HTMLInputElement;
 				container.style.setProperty("--position", `${target.value}%`);
 			});
+
+		chrome.storage.onChanged.addListener((changes) => {
+			for (const [key, { oldValue, newValue }] of Object.entries(changes)) {
+				if (key === Settings.showComparisonSlider) {
+					if (newValue === false) {
+						// reset to initial position
+						container.style.setProperty("--position", "0%");
+					}
+				}
+			}
+		});
 	},
 	destroy() {
 		if (this.slider) {
