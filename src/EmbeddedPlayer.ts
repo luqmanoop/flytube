@@ -29,6 +29,14 @@ export class EmbeddedPlayer {
 			`https://www.youtube.com/embed/${this.videoId}?autoplay=1`,
 		);
 		this.iframe.setAttribute("id", this.videoId);
+
+		this.iframe.addEventListener("load", () => {
+			this.focusPlayer();
+		});
+
+		document.addEventListener("keydown", (e) => {
+			this.focusPlayer(e);
+		});
 	}
 
 	get currentVideoId() {
@@ -154,13 +162,13 @@ export class EmbeddedPlayer {
 			return;
 		}
 
-		const isReadyToReceiveFocus = this.player.getAttribute("tabindex") === "0";
+		const isReadyToReceiveFocus = this.player.getAttribute("tabindex") === "-1";
 
 		if (isReadyToReceiveFocus) {
-			this.player.focus();
+			this.player.focus({ preventScroll: true });
 		} else {
-			this.player.setAttribute("tabindex", "0");
-			this.player.focus();
+			this.player.setAttribute("tabindex", "-1");
+			this.player.focus({ preventScroll: true });
 		}
 	}
 
