@@ -32,6 +32,7 @@ export class EmbeddedPlayer {
 
 		this.iframe.addEventListener("load", () => {
 			this.focusPlayer();
+			this.normalize();
 		});
 
 		document.addEventListener("keydown", (e) => {
@@ -57,6 +58,50 @@ export class EmbeddedPlayer {
 		return this.iframe.contentWindow?.document.querySelector(
 			"video",
 		) as HTMLVideoElement | null;
+	}
+
+	normalize() {
+		const css = document.createElement("style");
+		css.innerHTML = `
+		.ytp-pause-overlay,
+		.ytp-show-cards-title {
+			display: none;
+		}
+		`;
+
+		this.iframe.contentWindow?.document.head.appendChild(css);
+
+		this.onFinishedPlaying(() => {
+			const endScreenContainer =
+				this.iframe.contentWindow?.document.querySelector(
+					".ytp-endscreen-content",
+				) as HTMLElement;
+
+			const endScreenVideos = Array.from(
+				endScreenContainer?.querySelectorAll(
+					'a[target="_blank"]',
+				) as NodeListOf<HTMLElement>,
+			);
+
+			for (const endScreenVideo of endScreenVideos) {
+				const videoUrl = endScreenVideo.getAttribute("href");
+
+				const clonedEndScreenVideo = endScreenVideo.cloneNode(
+					true,
+				) as HTMLElement;
+				clonedEndScreenVideo.removeAttribute("target");
+				clonedEndScreenVideo.removeAttribute("href");
+
+				clonedEndScreenVideo.addEventListener("click", () => {
+					window.open(videoUrl ?? "", "_self");
+				});
+
+				// remove original embedded yt end screen video to remove the listeners that opens video in new tab
+				endScreenVideo.remove();
+
+				endScreenContainer.appendChild(clonedEndScreenVideo);
+			}
+		});
 	}
 
 	private fastForward() {
@@ -180,6 +225,12 @@ export class EmbeddedPlayer {
 
 	destroy() {
 		this.iframe.remove();
+	}
+
+	onFinishedPlaying(cb: () => void) {
+		if (!this.player) return;
+
+		this.player.addEventListener("ended", cb);
 	}
 
 	onFailedToLoad(cb: () => void) {
