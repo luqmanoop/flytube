@@ -3,6 +3,7 @@ import { storage } from "./utils";
 export const Settings = {
 	allowBackgroundAds: "allow-background-ads",
 	showComparisonSlider: "show-comparison-slider",
+	removeAdSlots: "remove-ad-slots",
 };
 
 export const SettingsConfig = [
@@ -13,6 +14,11 @@ export const SettingsConfig = [
 			"Support creators by allowing ads to play in the background. You won't see ads, but creators will still get paid.",
 	},
 	{
+		id: Settings.removeAdSlots,
+		title: "Remove ad slots",
+		description: "Remove ad slots and banners from the page.",
+	},
+	{
 		id: Settings.showComparisonSlider,
 		title: "Show comparison slider",
 		description:
@@ -20,8 +26,7 @@ export const SettingsConfig = [
 	},
 ];
 
-// biome-ignore lint/suspicious/noExplicitAny:
-export const getSettings = async (): Promise<Record<string, any>> => {
+export const getSettings = async (): Promise<Record<string, boolean>> => {
 	return storage.getAll(Object.values(Settings)).then((settings) => {
 		if (!settings) throw new Error("No settings found");
 		return settings;

@@ -17,6 +17,7 @@
     "service_worker": "background.js"
   },
   "permissions": ["storage", "declarativeContent", "contextMenus"],
+  "host_permissions": ["https://www.youtube.com/*"],
   "content_scripts": [
     {
       "matches": ["https://www.youtube.com/*"],

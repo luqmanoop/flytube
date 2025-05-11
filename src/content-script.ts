@@ -4,8 +4,33 @@ import { Settings, getSettings } from "./settings";
 import {
 	getCurrentVideoId,
 	getVideoPlayerContainer,
+	isShortsUrl,
 	isVideoWatchPage,
 } from "./utils";
+
+const style = document.createElement("style");
+style.innerHTML = `
+	ytd-ad-slot-renderer,
+	ytd-engagement-panel-section-list-renderer,
+	ytd-companion-slot-renderer,
+	ytd-player-legacy-desktop-watch-ads-renderer,
+	.ytd-ads-engagement-panel-content-renderer,
+	.ytd-engagement-panel-section-list-renderer,
+	.ytd-companion-slot-renderer,
+	.ytd-player-legacy-desktop-watch-ads-renderer {
+		display: none;
+	}
+`;
+
+const toggleAdSlots = async (url: URL) => {
+	const settings = await getSettings();
+	if (settings[Settings.removeAdSlots] && !isShortsUrl(url)) {
+		document.head.appendChild(style);
+	} else {
+		// document.head.removeChild(style);
+		style.remove();
+	}
+};
 
 try {
 	let currentUrl: URL = new URL(location.href);
@@ -25,6 +50,10 @@ try {
 
 	const initialize = async (url = currentUrl) => {
 		try {
+			await updateSettings();
+
+			toggleAdSlots(url);
+
 			const isWatchUrl = isVideoWatchPage(url);
 			const videoId = getCurrentVideoId(url.href);
 
@@ -41,8 +70,6 @@ try {
 			}
 
 			youtubeVideoPlayer.mount(embeddedVideoPlayer.iframeElement);
-
-			await updateSettings();
 
 			runningIntervalId = setInterval(() => {
 				if (isComparisonSliderEnabled) {
@@ -92,6 +119,7 @@ try {
 	window.document.addEventListener("visibilitychange", async () => {
 		if (document.visibilityState === "visible") {
 			await updateSettings();
+			await toggleAdSlots(currentUrl);
 		}
 	});
 
@@ -117,9 +145,15 @@ try {
 						ComparisonSlider.destroy();
 					}
 					break;
+				case Settings.removeAdSlots:
+					toggleAdSlots(currentUrl);
+					break;
 			}
 		}
 	});
 } catch (error) {
 	console.error(error);
+	if (chrome.runtime.lastError) {
+		console.error(chrome.runtime.lastError);
+	}
 }

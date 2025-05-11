@@ -51,6 +51,8 @@ export function App() {
                 name={setting.id}
                 checked={settings[setting.id] ?? false}
                 onChange={handleSettingChange}
+                aria-describedby={`${setting.id}-description`}
+                className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
               />
               <div className="flex flex-col gap-1 relative -top-[5px]">
                 <label htmlFor={setting.id} className="text-base">

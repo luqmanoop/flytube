@@ -65,3 +65,5 @@ export const isVideoWatchPage = (url: URL) =>
 
 export const getVideoPlayerContainer = async () =>
 	waitForElement("#movie_player.html5-video-player");
+
+export const isShortsUrl = (url: URL) => /\/shorts\//.test(url.pathname);
