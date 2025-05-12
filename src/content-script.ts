@@ -19,7 +19,8 @@ style.innerHTML = `
 	.ytd-companion-slot-renderer,
 	.ytd-player-legacy-desktop-watch-ads-renderer,
 	#masthead-ad,
-	ytd-banner-promo-renderer {
+	ytd-banner-promo-renderer,
+	#mealbar-promo-renderer {
 		display: none;
 	}
 `;
@@ -29,7 +30,6 @@ const toggleAdSlots = async (url: URL) => {
 	if (settings[Settings.removeAdSlots] && !isShortsUrl(url)) {
 		document.head.appendChild(style);
 	} else {
-		// document.head.removeChild(style);
 		style.remove();
 	}
 };
@@ -41,7 +41,7 @@ try {
 	let isBackgroundAdsEnabled: boolean;
 	let isComparisonSliderEnabled: boolean;
 
-	let embeddedVideoPlayer: EmbeddedPlayer;
+	let embeddedVideoPlayer: EmbeddedPlayer | null;
 	let youtubeVideoPlayer: YoutubeVideoPlayer;
 
 	const updateSettings = async () => {
@@ -74,6 +74,17 @@ try {
 			youtubeVideoPlayer.mount(embeddedVideoPlayer.iframeElement);
 
 			runningIntervalId = setInterval(() => {
+				if (!embeddedVideoPlayer) return;
+
+				if (
+					youtubeVideoPlayer.isAllowedToMovePlayhead &&
+					youtubeVideoPlayer.currentTime !== embeddedVideoPlayer.currentTime &&
+					(!embeddedVideoPlayer.isFinishedPlaying ||
+						!embeddedVideoPlayer.isPaused)
+				) {
+					youtubeVideoPlayer.currentTime = embeddedVideoPlayer.currentTime;
+				}
+
 				if (isComparisonSliderEnabled) {
 					ComparisonSlider.init(videoPlayerContainer);
 				}
@@ -93,10 +104,11 @@ try {
 				) {
 					youtubeVideoPlayer.pause();
 				}
-			}, 500);
+			}, 500); // half a second is crucial to not negatively impact video retention when moving playhead
 
 			embeddedVideoPlayer.onFailedToLoad(() => {
 				embeddedVideoPlayer?.destroy();
+				embeddedVideoPlayer = null;
 
 				clearInterval(runningIntervalId);
 
