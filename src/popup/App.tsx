@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "preact/hooks";
+import type { JSX } from "preact/jsx-runtime";
 
 import { getSettings, SettingsConfig } from "src/settings";
 import { storage } from "src/utils";
@@ -16,11 +17,14 @@ export function App() {
     });
   }, []);
 
-  const handleSettingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    storage.set(e.target.name, e.target.checked);
+  const handleSettingChange = (
+    e: JSX.TargetedEvent<HTMLInputElement, Event>
+  ) => {
+    const target = e.target as HTMLInputElement;
+    storage.set(target.name, target.checked);
     setSettings({
       ...settings,
-      [e.target.name]: e.target.checked,
+      [target.name]: target.checked,
     });
   };
 

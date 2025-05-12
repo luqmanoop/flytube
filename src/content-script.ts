@@ -17,7 +17,9 @@ style.innerHTML = `
 	.ytd-ads-engagement-panel-content-renderer,
 	.ytd-engagement-panel-section-list-renderer,
 	.ytd-companion-slot-renderer,
-	.ytd-player-legacy-desktop-watch-ads-renderer {
+	.ytd-player-legacy-desktop-watch-ads-renderer,
+	#masthead-ad,
+	ytd-banner-promo-renderer {
 		display: none;
 	}
 `;
