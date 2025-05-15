@@ -126,6 +126,7 @@ try {
 		if (runningIntervalId) {
 			clearInterval(runningIntervalId);
 		}
+		ComparisonSlider.destroy();
 	};
 
 	initialize();
