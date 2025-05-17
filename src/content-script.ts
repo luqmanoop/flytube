@@ -1,3 +1,5 @@
+import mitt from "mitt";
+
 import { EmbeddedPlayer, YoutubeVideoPlayer } from ".";
 import { ComparisonSlider } from "./comparison-slider";
 import { Settings, getSettings } from "./settings";
@@ -6,7 +8,10 @@ import {
 	getVideoPlayerContainer,
 	isShortsUrl,
 	isVideoWatchPage,
+	onClassChange,
 } from "./utils";
+
+const emitter = mitt();
 
 const style = document.createElement("style");
 style.innerHTML = `
@@ -21,154 +26,128 @@ style.innerHTML = `
 	#masthead-ad,
 	ytd-banner-promo-renderer,
 	#mealbar-promo-renderer {
-		display: none;
+		display: none !important;
 	}
 `;
 
-const toggleAdSlots = async (url: URL) => {
-	const settings = await getSettings();
-	if (settings[Settings.removeAdSlots] && !isShortsUrl(url)) {
+const toggleAdSlots = async (url: URL, enabled: boolean) => {
+	if (enabled && !isShortsUrl(url)) {
 		document.head.appendChild(style);
 	} else {
 		style.remove();
 	}
 };
 
-try {
-	let currentUrl: URL = new URL(location.href);
-	let runningIntervalId: Timer | undefined;
+let currentUrl: URL = new URL(location.href);
 
-	let isBackgroundAdsEnabled: boolean;
-	let isComparisonSliderEnabled: boolean;
+const initialize = async (url = currentUrl) => {
+	const settings = await getSettings();
 
-	let embeddedVideoPlayer: EmbeddedPlayer | null;
-	let youtubeVideoPlayer: YoutubeVideoPlayer;
+	toggleAdSlots(url, settings[Settings.removeAdSlots]);
 
-	const updateSettings = async () => {
-		const settings = await getSettings();
-		isBackgroundAdsEnabled = settings[Settings.allowBackgroundAds];
-		isComparisonSliderEnabled = settings[Settings.showComparisonSlider];
-	};
+	const isWatchUrl = isVideoWatchPage(url);
+	const videoId = getCurrentVideoId(url.href);
 
-	const initialize = async (url = currentUrl) => {
-		try {
-			await updateSettings();
+	let isEmbedError = false;
 
-			toggleAdSlots(url);
+	const videoPlayerContainer = await getVideoPlayerContainer();
 
-			const isWatchUrl = isVideoWatchPage(url);
-			const videoId = getCurrentVideoId(url.href);
+	if (!isWatchUrl || !videoId || !videoPlayerContainer) return;
 
-			const videoPlayerContainer = await getVideoPlayerContainer();
+	const youtubeVideoPlayer = new YoutubeVideoPlayer(videoPlayerContainer);
+	const embeddedVideoPlayer = new EmbeddedPlayer(videoId);
 
-			if (!isWatchUrl || !videoId || !videoPlayerContainer) return;
+	youtubeVideoPlayer.mute();
 
-			youtubeVideoPlayer = new YoutubeVideoPlayer(videoPlayerContainer);
-			embeddedVideoPlayer = new EmbeddedPlayer(videoId);
-
-			if (!embeddedVideoPlayer.iframeElement) {
-				console.error("Embedded player was not initialized");
-				return;
-			}
-
-			youtubeVideoPlayer.mount(embeddedVideoPlayer.iframeElement);
-
-			runningIntervalId = setInterval(() => {
-				if (!embeddedVideoPlayer) return;
-
-				if (
-					youtubeVideoPlayer.isAllowedToMovePlayhead &&
-					youtubeVideoPlayer.currentTime !== embeddedVideoPlayer.currentTime &&
-					(!embeddedVideoPlayer.isFinishedPlaying ||
-						!embeddedVideoPlayer.isPaused)
-				) {
-					youtubeVideoPlayer.currentTime = embeddedVideoPlayer.currentTime;
-				}
-
-				if (isComparisonSliderEnabled) {
-					ComparisonSlider.init(videoPlayerContainer);
-				}
-
-				if (!youtubeVideoPlayer.allowedToPlay) {
-					youtubeVideoPlayer.mute();
-				}
-
-				if (isBackgroundAdsEnabled && !embeddedVideoPlayer.isPaused) {
-					youtubeVideoPlayer.play();
-				}
-
-				if (
-					embeddedVideoPlayer.isFinishedPlaying ||
-					embeddedVideoPlayer.isPaused ||
-					!isBackgroundAdsEnabled
-				) {
-					youtubeVideoPlayer.pause();
-				}
-			}, 500); // half a second is crucial to not negatively impact video retention when moving playhead
-
-			embeddedVideoPlayer.onFailedToLoad(() => {
-				embeddedVideoPlayer?.destroy();
-				embeddedVideoPlayer = null;
-
-				clearInterval(runningIntervalId);
-
-				youtubeVideoPlayer?.setIsAllowedToPlay(true);
-				youtubeVideoPlayer?.unmute();
-				youtubeVideoPlayer?.play();
-			});
-		} catch (error) {
-			console.error(error);
-		}
-	};
-
-	const cleanup = () => {
-		embeddedVideoPlayer?.destroy();
-		if (runningIntervalId) {
-			clearInterval(runningIntervalId);
-		}
-		ComparisonSlider.destroy();
-	};
-
-	initialize();
-
-	window.document.addEventListener("visibilitychange", async () => {
-		if (document.visibilityState === "visible") {
-			await updateSettings();
-			await toggleAdSlots(currentUrl);
-		}
-	});
-
-	window.navigation.addEventListener("navigate", ({ destination: { url } }) => {
-		if (url !== currentUrl.href) {
-			currentUrl = new URL(url);
-			cleanup();
-			initialize(currentUrl);
-		}
-	});
-
-	window.addEventListener("beforeunload", cleanup);
-
-	chrome.storage.onChanged.addListener((changes) => {
-		for (const [key, { oldValue, newValue }] of Object.entries(changes)) {
-			switch (key) {
-				case Settings.allowBackgroundAds:
-					isBackgroundAdsEnabled = newValue;
-					break;
-				case Settings.showComparisonSlider:
-					isComparisonSliderEnabled = newValue;
-					if (!isComparisonSliderEnabled) {
-						ComparisonSlider.destroy();
-					}
-					break;
-				case Settings.removeAdSlots:
-					toggleAdSlots(currentUrl);
-					break;
-			}
-		}
-	});
-} catch (error) {
-	console.error(error);
-	if (chrome.runtime.lastError) {
-		console.error(chrome.runtime.lastError);
+	if (settings[Settings.allowBackgroundAds]) {
+		youtubeVideoPlayer.play();
+	} else {
+		youtubeVideoPlayer.pause();
 	}
-}
+
+	if (settings[Settings.showComparisonSlider]) {
+		ComparisonSlider.init(videoPlayerContainer);
+	}
+
+	emitter.on(Settings.removeAdSlots, (isEnabled) => {
+		toggleAdSlots(currentUrl, Boolean(isEnabled));
+	});
+
+	emitter.on(Settings.allowBackgroundAds, (isEnabled) => {
+		if (isEmbedError) return;
+
+		return isEnabled ? youtubeVideoPlayer.play() : youtubeVideoPlayer.pause();
+	});
+
+	emitter.on(Settings.showComparisonSlider, (isEnabled) => {
+		if (isEmbedError) return;
+
+		return isEnabled
+			? ComparisonSlider.init(videoPlayerContainer)
+			: ComparisonSlider.destroy();
+	});
+
+	const handlePlayStateChange = async (isPlaying: boolean) => {
+		if (isEmbedError) return;
+
+		const settings = await getSettings();
+
+		if (isPlaying && settings[Settings.allowBackgroundAds]) {
+			youtubeVideoPlayer.play();
+		} else {
+			youtubeVideoPlayer.pause();
+		}
+	};
+
+	embeddedVideoPlayer.onPlayStateChange(handlePlayStateChange);
+
+	const disconnectObserver = onClassChange(videoPlayerContainer, async () => {
+		const brewTubeIframe = document.querySelector("iframe#brewtube-player") as
+			| HTMLIFrameElement
+			| undefined;
+
+		const embedError =
+			brewTubeIframe?.contentWindow?.document.querySelector(".ytp-embed-error");
+
+		if (brewTubeIframe && !embedError) {
+			youtubeVideoPlayer.mute();
+		} else {
+			isEmbedError = true;
+			youtubeVideoPlayer.unmute();
+			youtubeVideoPlayer.play();
+			disconnectObserver();
+			cleanup();
+		}
+	});
+
+	youtubeVideoPlayer.mount(embeddedVideoPlayer.iframeElement);
+};
+
+const cleanup = () => {
+	document.querySelector("iframe#brewtube-player")?.remove();
+	ComparisonSlider.destroy();
+};
+
+window.navigation.addEventListener("navigate", ({ destination: { url } }) => {
+	if (url !== currentUrl.href) {
+		currentUrl = new URL(url);
+		cleanup();
+		initialize(currentUrl);
+	}
+});
+
+window.addEventListener("beforeunload", cleanup);
+
+chrome.storage.onChanged.addListener((changes) => {
+	for (const [key, { newValue }] of Object.entries(changes)) {
+		emitter.emit(key, newValue);
+	}
+});
+
+(async () => {
+	try {
+		await initialize();
+	} catch (error) {
+		cleanup();
+	}
+})();

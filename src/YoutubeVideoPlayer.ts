@@ -3,21 +3,20 @@
  */
 export class YoutubeVideoPlayer {
 	private playerContainer: HTMLElement;
-	private player: HTMLVideoElement;
-	private isAllowedToPlay = false;
+	private muted = false;
 
 	constructor(playerContainer: HTMLElement) {
 		this.playerContainer = playerContainer;
 
 		this.playerContainer.style.position = "relative";
 
-		this.player = this.playerContainer.querySelector(
-			"video",
-		) as HTMLVideoElement;
-
 		if (!this.player) {
 			throw new Error("Player not found");
 		}
+	}
+
+	get player(): HTMLVideoElement {
+		return this.playerContainer.querySelector("video") as HTMLVideoElement;
 	}
 
 	play() {
@@ -25,17 +24,7 @@ export class YoutubeVideoPlayer {
 	}
 
 	pause() {
-		if (!this.isAllowedToPlay) {
-			this.player.pause();
-		}
-	}
-
-	setIsAllowedToPlay(value: boolean) {
-		this.isAllowedToPlay = value;
-	}
-
-	get allowedToPlay() {
-		return this.isAllowedToPlay;
+		this.player.pause();
 	}
 
 	isPlaying() {
@@ -43,19 +32,17 @@ export class YoutubeVideoPlayer {
 	}
 
 	get isMuted() {
-		return this.player.muted;
+		return this.muted;
 	}
 
 	mute() {
-		if (!this.isMuted) {
-			this.player.muted = true;
-		}
+		this.player.muted = true;
+		this.muted = true;
 	}
 
 	unmute() {
-		if (this.isMuted) {
-			this.player.muted = false;
-		}
+		this.player.muted = false;
+		this.muted = false;
 	}
 
 	get isAdsVideo() {

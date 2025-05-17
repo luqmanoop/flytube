@@ -67,3 +67,24 @@ export const getVideoPlayerContainer = async () =>
 	waitForElement("#movie_player.html5-video-player");
 
 export const isShortsUrl = (url: URL) => /\/shorts\//.test(url.pathname);
+
+export const onClassChange = (
+	element: Element,
+	callback: (mutation: MutationRecord) => void,
+) => {
+	const observer = new MutationObserver((mutations) => {
+		for (const m of mutations) {
+			if (m.attributeName === "class") {
+				callback(m);
+			}
+		}
+	});
+
+	observer.observe(element, {
+		childList: true,
+		attributes: true,
+		attributeFilter: ["class"],
+	});
+
+	return () => observer.disconnect();
+};

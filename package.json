@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "element-ready": "^7.0.0",
+    "mitt": "^3.0.1",
     "preact": "^10.26.6"
   }
 }

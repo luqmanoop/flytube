@@ -40,22 +40,25 @@ chrome.runtime.onInstalled.addListener(async ({ reason }) => {
 			title,
 			checked: isEnabled,
 			type: "checkbox",
+			documentUrlPatterns: ["https://www.youtube.com/*"],
 		});
 	}
 
 	// update settings when context menu item is clicked
-	chrome.contextMenus.onClicked.addListener(async (item) => {
-		const selectedItemId = item.menuItemId as string;
+	chrome.contextMenus.onClicked.addListener(async (selected) => {
+		const selectedItemId = selected.menuItemId as string;
 		const settings = Object.values(Settings);
 		if (settings.includes(selectedItemId)) {
-			await storage.set(selectedItemId, item.checked);
+			await storage.set(selectedItemId, selected.checked);
 		}
 	});
 
 	// update context menu item when setting is changed
 	chrome.storage.onChanged.addListener((changes) => {
 		for (const [key, { oldValue, newValue }] of Object.entries(changes)) {
-			chrome.contextMenus.update(key, { checked: !!newValue });
+			chrome.contextMenus.update(key, {
+				checked: !!newValue,
+			});
 		}
 	});
 });
