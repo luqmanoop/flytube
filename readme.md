@@ -12,5 +12,5 @@ It works by not blocking ads but allowing them to play in the background while y
 
 - Watch YouTube without Ads
 - Play/Pause background ads
-- Remote ad slots and banners on YouTube
+- Remove distracting ad slots and banners on YouTube
 - Comparison slider to see video with or without ads
