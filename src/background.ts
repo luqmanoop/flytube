@@ -1,6 +1,14 @@
 import { Settings, SettingsConfig } from "./settings";
 import { storage } from "./utils";
 
+chrome.alarms.create("keepAlive", {
+	periodInMinutes: 0.5, // 30 seconds
+});
+
+chrome.alarms.onAlarm.addListener((alarm) => {
+	console.log(`sw::${alarm.name}`);
+});
+
 chrome.runtime.onInstalled.addListener(async ({ reason }) => {
 	if (reason === chrome.runtime.OnInstalledReason.INSTALL) {
 		const isBackgroundAdsEnabled = await storage.get(
