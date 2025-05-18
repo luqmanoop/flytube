@@ -50,6 +50,7 @@ const initialize = async (url = currentUrl) => {
 	const videoId = getCurrentVideoId(url.href);
 
 	let isEmbedError = false;
+	let isEmbedErrorHandled = false;
 
 	const videoPlayerContainer = await getVideoPlayerContainer();
 
@@ -129,10 +130,11 @@ const initialize = async (url = currentUrl) => {
 			videoPlayerContainer.classList.contains("flytube-error");
 
 		if (flyTubeIframe && (!embedError || !flyTubeError)) {
-			// always mute underlying player when flytube is loaded. otherwise, if underlying player changes from ad to video, mute state might not be updated correctly.
+			// always mute underlying player when flytube is loaded. otherwise, if underlying player changes from ad to video or vice versa, mute state might not be updated correctly.
 			youtubeVideoPlayer.mute();
-		} else {
+		} else if (!isEmbedErrorHandled) {
 			isEmbedError = true;
+			isEmbedErrorHandled = true;
 			youtubeVideoPlayer.pause();
 			await Toast.show(
 				videoPlayerContainer,
