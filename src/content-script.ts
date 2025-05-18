@@ -3,6 +3,7 @@ import mitt from "mitt";
 import { EmbeddedPlayer, YoutubeVideoPlayer } from ".";
 import { ComparisonSlider } from "./comparison-slider";
 import { Settings, getSettings } from "./settings";
+import { Toast } from "./toast";
 import {
 	getCurrentVideoId,
 	getVideoPlayerContainer,
@@ -101,6 +102,21 @@ const initialize = async (url = currentUrl) => {
 
 	embeddedVideoPlayer.onPlayStateChange(handlePlayStateChange);
 
+	const checkEmbedErrorId = setInterval(() => {
+		const flyTubeIframe = document.querySelector("iframe#flytube-player") as
+			| HTMLIFrameElement
+			| undefined;
+
+		const embedError =
+			flyTubeIframe?.contentWindow?.document.querySelector(".ytp-embed-error");
+
+		if (flyTubeIframe && embedError) {
+			isEmbedError = true;
+			videoPlayerContainer.classList.add("flytube-error"); // trigger mutation observer
+			clearInterval(checkEmbedErrorId);
+		}
+	}, 500);
+
 	const disconnectObserver = onClassChange(videoPlayerContainer, async () => {
 		const flyTubeIframe = document.querySelector("iframe#flytube-player") as
 			| HTMLIFrameElement
@@ -109,10 +125,20 @@ const initialize = async (url = currentUrl) => {
 		const embedError =
 			flyTubeIframe?.contentWindow?.document.querySelector(".ytp-embed-error");
 
-		if (flyTubeIframe && !embedError) {
+		const flyTubeError =
+			videoPlayerContainer.classList.contains("flytube-error");
+
+		if (flyTubeIframe && (!embedError || !flyTubeError)) {
+			// always mute underlying player when flytube is loaded. otherwise, if underlying player changes from ad to video, mute state might not be updated correctly.
 			youtubeVideoPlayer.mute();
 		} else {
 			isEmbedError = true;
+			youtubeVideoPlayer.pause();
+			await Toast.show(
+				videoPlayerContainer,
+				"FlyTube failed to load",
+				"The native YouTube player will now be used & you may see ads.",
+			);
 			youtubeVideoPlayer.unmute();
 			youtubeVideoPlayer.play();
 			disconnectObserver();
@@ -126,6 +152,7 @@ const initialize = async (url = currentUrl) => {
 const cleanup = () => {
 	document.querySelector("iframe#flytube-player")?.remove();
 	ComparisonSlider.destroy();
+	Toast.cleanup();
 };
 
 window.navigation.addEventListener("navigate", ({ destination: { url } }) => {
