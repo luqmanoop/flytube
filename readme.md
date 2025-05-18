@@ -1,4 +1,4 @@
-<div style="text-align:center;">
+<div align="center">
 <img src="/public/icons/128.png" />
 <h1>FlyTube</h1>
 <p style="font-size: 18px;">Ad-free YouTube, no subscription</p>
