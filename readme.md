@@ -1,41 +1,16 @@
-# bun-chrome-extension
+<div style="text-align:center;">
+<img src="/public/icons/128.png" />
+<h1>FlyTube</h1>
+<p style="font-size: 18px;">Ad-free YouTube, no subscription</p>
+</div>
 
-> Develop chrome extension with full TypeScript support using [Bun](https://bun.sh) 🐰 & [React](https://react.dev/)
+FlyTube is a chrome extension that allows you to watch YouTube without showing you any Ads.
 
-Bun chrome extension is a starter template for developing chrome-extensions using modern frontend tooling.
+It works by not blocking ads but allowing them to play in the background while you enjoy YouTube in an overlayed embedded YouTube player.
 
-## What's inside?
-- [x] First-class TypeScript support
-- [x] Background & content scripts
-- [x] Popup & Options page built with React
-- [x] Lint & format with [BiomeJS](https://biomejs.dev/)
-- [x] Latest Manifest v3
-- [x] TailwindCSS
+## Features
 
-Install dependencies:
-
-```bash
-bun install
-```
-
-Run:
-
-```bash
-bun run dev
-```
-
-Build:
-
-```bash
-bun run build
-```
-
-Package extension for publishing
-
-```bash
-bun run pack
-```
-
-## License
-
-This project is licensed under the [MIT](/license) License.
+- Watch YouTube without Ads
+- Play/Pause background ads
+- Remote ad slots and banners on YouTube
+- Comparison slider to see video with or without ads
