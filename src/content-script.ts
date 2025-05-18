@@ -102,14 +102,14 @@ const initialize = async (url = currentUrl) => {
 	embeddedVideoPlayer.onPlayStateChange(handlePlayStateChange);
 
 	const disconnectObserver = onClassChange(videoPlayerContainer, async () => {
-		const brewTubeIframe = document.querySelector("iframe#brewtube-player") as
+		const flyTubeIframe = document.querySelector("iframe#flytube-player") as
 			| HTMLIFrameElement
 			| undefined;
 
 		const embedError =
-			brewTubeIframe?.contentWindow?.document.querySelector(".ytp-embed-error");
+			flyTubeIframe?.contentWindow?.document.querySelector(".ytp-embed-error");
 
-		if (brewTubeIframe && !embedError) {
+		if (flyTubeIframe && !embedError) {
 			youtubeVideoPlayer.mute();
 		} else {
 			isEmbedError = true;
@@ -124,7 +124,7 @@ const initialize = async (url = currentUrl) => {
 };
 
 const cleanup = () => {
-	document.querySelector("iframe#brewtube-player")?.remove();
+	document.querySelector("iframe#flytube-player")?.remove();
 	ComparisonSlider.destroy();
 };
 

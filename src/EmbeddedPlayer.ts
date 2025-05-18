@@ -26,7 +26,7 @@ export class EmbeddedPlayer {
 			"src",
 			`https://www.youtube.com/embed/${this.videoId}?autoplay=1`,
 		);
-		this.iframe.setAttribute("id", "brewtube-player");
+		this.iframe.setAttribute("id", "flytube-player");
 
 		this.onLoaded(() => {
 			this.focusPlayer();

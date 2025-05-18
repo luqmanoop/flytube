@@ -34,10 +34,10 @@ export function App() {
         <div className="flex flex-col items-center gap-1 text-center">
           <img
             src={chrome.runtime.getURL("icons/128.png")}
-            alt="BrewTube"
+            alt="FlyTube"
             className="w-[90px] mb-0 rounded-xl"
           />
-          <h1 className="text-3xl font-bold mt-0 tracking-tighter">BrewTube</h1>
+          <h1 className="text-3xl font-bold mt-0 tracking-tighter">FlyTube</h1>
           <p className="text-base tracking-tight">
             Ad-free YouTube, no subscription.
           </p>

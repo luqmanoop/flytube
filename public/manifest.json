@@ -1,5 +1,5 @@
 {
-  "name": "BrewTube",
+  "name": "FlyTube",
   "description": "Ad-free YouTube, no subscription.",
   "version": "1.0.0",
   "manifest_version": 3,
@@ -10,7 +10,7 @@
     "128": "icons/128.png"
   },
   "action": {
-    "default_title": "BrewTube (Ad-free YouTube, no subscription)",
+    "default_title": "FlyTube (Ad-free YouTube, no subscription)",
     "default_popup": "popup/index.html"
   },
   "background": {
