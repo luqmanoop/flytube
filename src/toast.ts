@@ -45,7 +45,7 @@ document.head.appendChild(css);
 
 export const Toast = {
 	id: "flytube-toast-container",
-	duration: 5000,
+	duration: 4000,
 	async show(container: HTMLElement, title: string, message: string) {
 		this.cleanup();
 

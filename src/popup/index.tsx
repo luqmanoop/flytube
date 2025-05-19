@@ -1,8 +1,8 @@
 import { render } from "preact";
-import { App } from "./App";
+import { Popup } from "./popup";
 
 const container = document.getElementById("root");
 
 if (container) {
-  render(<App />, container);
+  render(<Popup />, container);
 }

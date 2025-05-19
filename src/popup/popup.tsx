@@ -4,7 +4,7 @@ import type { JSX } from "preact/jsx-runtime";
 import { getSettings, SettingsConfig } from "src/settings";
 import { storage } from "src/utils";
 
-export function App() {
+export function Popup() {
   const [settings, setSettings] = useState<Partial<Record<string, boolean>>>(
     {}
   );

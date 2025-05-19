@@ -1,7 +1,7 @@
 import mitt from "mitt";
 
-import { EmbeddedPlayer, YoutubeVideoPlayer } from ".";
 import { ComparisonSlider } from "./comparison-slider";
+import { EmbeddedPlayer } from "./embedded-player";
 import { Settings, getSettings } from "./settings";
 import { Toast } from "./toast";
 import {
@@ -11,6 +11,7 @@ import {
 	isVideoWatchPage,
 	onClassChange,
 } from "./utils";
+import { YoutubePlayer } from "./youtube-player";
 
 const emitter = mitt();
 
@@ -46,6 +47,10 @@ const initialize = async (url = currentUrl) => {
 
 	toggleAdSlots(url, settings[Settings.removeAdSlots]);
 
+	emitter.on(Settings.removeAdSlots, (isEnabled) => {
+		toggleAdSlots(currentUrl, Boolean(isEnabled));
+	});
+
 	const isWatchUrl = isVideoWatchPage(url);
 	const videoId = getCurrentVideoId(url.href);
 
@@ -56,7 +61,7 @@ const initialize = async (url = currentUrl) => {
 
 	if (!isWatchUrl || !videoId || !videoPlayerContainer) return;
 
-	const youtubeVideoPlayer = new YoutubeVideoPlayer(videoPlayerContainer);
+	const youtubeVideoPlayer = new YoutubePlayer(videoPlayerContainer);
 	const embeddedVideoPlayer = new EmbeddedPlayer(videoId);
 
 	youtubeVideoPlayer.mute();
@@ -70,10 +75,6 @@ const initialize = async (url = currentUrl) => {
 	if (settings[Settings.showComparisonSlider]) {
 		ComparisonSlider.init(videoPlayerContainer);
 	}
-
-	emitter.on(Settings.removeAdSlots, (isEnabled) => {
-		toggleAdSlots(currentUrl, Boolean(isEnabled));
-	});
 
 	emitter.on(Settings.allowBackgroundAds, (isEnabled) => {
 		if (isEmbedError) return;

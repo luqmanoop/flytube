@@ -5,11 +5,9 @@ import { waitFor } from "./utils";
  */
 export class EmbeddedPlayer {
 	private iframe: HTMLIFrameElement;
-	private videoId: string;
 
 	constructor(videoId: string) {
 		this.iframe = document.createElement("iframe");
-		this.videoId = videoId;
 
 		this.iframe.style.cssText = `
       width: 100%;
@@ -24,7 +22,7 @@ export class EmbeddedPlayer {
   `;
 		this.iframe.setAttribute(
 			"src",
-			`https://www.youtube.com/embed/${this.videoId}?autoplay=1`,
+			`https://www.youtube.com/embed/${videoId}?autoplay=1`,
 		);
 		this.iframe.setAttribute("id", "flytube-player");
 
@@ -36,10 +34,6 @@ export class EmbeddedPlayer {
 		document.addEventListener("keydown", (e) => {
 			this.focusPlayer(e);
 		});
-	}
-
-	get currentVideoId() {
-		return this.videoId;
 	}
 
 	get errorContent(): HTMLElement | null {
@@ -102,40 +96,6 @@ export class EmbeddedPlayer {
 		});
 	}
 
-	get isFinishedPlaying() {
-		if (!this.player) return false;
-
-		return this.player.currentTime >= this.duration;
-	}
-
-	get isPaused() {
-		if (!this.player) return false;
-
-		return !!(this.player.duration && this.player.paused);
-	}
-
-	get currentTime() {
-		if (!this.player) return 0;
-
-		return this.player.currentTime;
-	}
-
-	get duration() {
-		if (!this.player) return 0;
-
-		return this.player.duration ?? 0;
-	}
-
-	togglePlayMode() {
-		if (!this.player) return;
-
-		if (this.player.paused) {
-			this.player.play();
-		} else {
-			this.player.pause();
-		}
-	}
-
 	focusPlayer(e?: MouseEvent | KeyboardEvent) {
 		if (!this.player) return;
 
@@ -157,18 +117,6 @@ export class EmbeddedPlayer {
 
 	destroy() {
 		this.iframe.remove();
-	}
-
-	onPaused(cb: () => void) {
-		if (!this.player) return;
-
-		this.player.addEventListener("pause", cb);
-	}
-
-	onPlay(cb: () => void) {
-		if (!this.player) return;
-
-		this.player.addEventListener("play", cb);
 	}
 
 	onLoaded(cb: (player: HTMLVideoElement) => void) {
