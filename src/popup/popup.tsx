@@ -44,9 +44,7 @@ export function Popup(props?: Props) {
   };
 
   return (
-    <div
-      className={`antialiased text-gray-900 dark:text-slate-300 tracking-tight bg-light dark:bg-slate-950 w-96 px-4 pt-4 pb-4 ${props?.className}`}
-    >
+    <div className={`w-96 px-4 pt-4 pb-4 ${props?.className}`}>
       <div className="flex flex-col gap-2">
         <div className="flex flex-col items-center gap-1 text-center">
           <img
