@@ -13,11 +13,23 @@ export function Popup(props?: Props) {
   );
 
   useEffect(() => {
-    getSettings().then((_settings) => {
-      if (_settings) {
-        setSettings(_settings);
+    const updateSettings = () => {
+      if (!document.hidden) {
+        getSettings().then((_settings) => {
+          if (_settings) {
+            setSettings(_settings);
+          }
+        });
       }
-    });
+    };
+
+    updateSettings();
+
+    document.addEventListener("visibilitychange", updateSettings);
+
+    return () => {
+      document.removeEventListener("visibilitychange", updateSettings);
+    };
   }, []);
 
   const handleSettingChange = (
