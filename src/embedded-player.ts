@@ -9,6 +9,7 @@ export class EmbeddedPlayer {
 	constructor(videoId: string) {
 		this.iframe = document.createElement("iframe");
 
+		// .ytp-skip-ad-button has z-index 1000, so we start at 1100
 		this.iframe.style.cssText = `
       width: 100%;
       height: 100%;
@@ -17,7 +18,7 @@ export class EmbeddedPlayer {
 			left: var(--position);
 			bottom: 0;
 			right: 0;
-			z-index: 99999 !important;
+			z-index: 1100 !important;
       border-radius: 12px;
   `;
 		this.iframe.setAttribute(
@@ -34,6 +35,10 @@ export class EmbeddedPlayer {
 		document.addEventListener("keydown", (e) => {
 			this.focusPlayer(e);
 		});
+	}
+
+	get iframeDocument() {
+		return this.iframe.contentWindow?.document;
 	}
 
 	get errorContent(): HTMLElement | null {

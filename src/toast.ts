@@ -4,7 +4,7 @@ css.innerHTML = `
     position: absolute;
     top: 20px;
     right: 20px;
-    z-index: 99999999;
+    z-index: 1200 !important;
   }
   .flytube-toast {
     background-color: #333;

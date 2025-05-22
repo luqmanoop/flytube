@@ -4,7 +4,7 @@ const css = document.createElement("style");
 css.innerHTML = `
 .slider {
   position: absolute;
-  z-index: 999999 !important;
+  z-index: 1300 !important;
   inset: 0;
   cursor: pointer;
   opacity: 0;
@@ -15,7 +15,7 @@ css.innerHTML = `
 .slider-divider {
   position: absolute;
   inset: 0;
-  z-index: 999999 !important;
+  z-index: 1300 !important;
   width: .2rem;
   height: 100%;
   background-color: #fff;
@@ -25,7 +25,7 @@ css.innerHTML = `
 }
 
 .slider-handle {
-  z-index: 999999 !important;
+  z-index: 1300 !important;
   box-shadow: transparent 0px 0px 6px;
   color: rgb(0, 0, 0);
   border: 1px solid rgba(0, 0, 0, 0.1);
@@ -48,7 +48,7 @@ css.innerHTML = `
   content: "";
   height: 10px;
   position: absolute;
-  z-index: 999999 !important;
+  z-index: 1300 !important;
   top: 50%;
   transform-origin: 0px 0px;
   width: 10px;

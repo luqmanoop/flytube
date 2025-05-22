@@ -1,3 +1,4 @@
+import throttle from "lodash.throttle";
 import mitt from "mitt";
 
 import { ComparisonSlider } from "./comparison-slider";
@@ -17,6 +18,39 @@ const emitter = mitt();
 
 const style = document.createElement("style");
 style.innerHTML = `
+  .flytube-hide {
+    display: none !important;
+  }
+`;
+
+document.head.appendChild(style);
+
+const spinner = `<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><style>.spinner_jCIR{animation:spinner_B8Vq .9s linear infinite;animation-delay:-.9s}.spinner_upm8{animation-delay:-.8s}.spinner_2eL5{animation-delay:-.7s}.spinner_Rp9l{animation-delay:-.6s}.spinner_dy3W{animation-delay:-.5s}@keyframes spinner_B8Vq{0%,66.66%{animation-timing-function:cubic-bezier(0.36,.61,.3,.98);y:6px;height:12px}33.33%{animation-timing-function:cubic-bezier(0.36,.61,.3,.98);y:1px;height:22px}}</style><rect class="spinner_jCIR" x="1" y="6" width="2.8" height="12"/><rect class="spinner_jCIR spinner_upm8" x="5.8" y="6" width="2.8" height="12"/><rect class="spinner_jCIR spinner_2eL5" x="10.6" y="6" width="2.8" height="12"/><rect class="spinner_jCIR spinner_Rp9l" x="15.4" y="6" width="2.8" height="12"/><rect class="spinner_jCIR spinner_dy3W" x="20.2" y="6" width="2.8" height="12"/></svg>`;
+
+const loaderContainer = document.createElement("div");
+loaderContainer.id = "flytube-loader-container";
+
+loaderContainer.style.cssText = `
+	  width: 100%;
+	  height: 100%;
+	  position: absolute;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		right: 0;
+		z-index: 1150 !important;
+	  border-radius: 12px;
+    background: #090b16;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    fill: #fff;
+	`;
+
+loaderContainer.innerHTML = spinner;
+
+const adSlotsStyle = document.createElement("style");
+adSlotsStyle.innerHTML = `
 	ytd-ad-slot-renderer,
 	ytd-engagement-panel-section-list-renderer,
 	ytd-companion-slot-renderer,
@@ -34,10 +68,18 @@ style.innerHTML = `
 
 const toggleAdSlots = async (url: URL, enabled: boolean) => {
 	if (enabled && !isShortsUrl(url)) {
-		document.head.appendChild(style);
+		document.head.appendChild(adSlotsStyle);
 	} else {
-		style.remove();
+		adSlotsStyle.remove();
 	}
+};
+
+const showLoader = () => {
+	loaderContainer.classList.remove("flytube-hide");
+};
+
+const hideLoader = () => {
+	loaderContainer.classList.add("flytube-hide");
 };
 
 let currentUrl: URL = new URL(location.href);
@@ -61,15 +103,19 @@ const initialize = async (url = currentUrl) => {
 
 	if (!isWatchUrl || !videoId || !videoPlayerContainer) return;
 
-	const youtubeVideoPlayer = new YoutubePlayer(videoPlayerContainer);
-	const embeddedVideoPlayer = new EmbeddedPlayer(videoId);
+	showLoader();
 
-	youtubeVideoPlayer.mute();
+	videoPlayerContainer.appendChild(loaderContainer);
+
+	const ytPlayer = new YoutubePlayer(videoPlayerContainer);
+	const embedPlayer = new EmbeddedPlayer(videoId);
+
+	ytPlayer.mute();
 
 	if (settings[Settings.allowBackgroundAds]) {
-		youtubeVideoPlayer.play();
+		ytPlayer.play();
 	} else {
-		youtubeVideoPlayer.pause();
+		ytPlayer.pause();
 	}
 
 	if (settings[Settings.showComparisonSlider]) {
@@ -79,7 +125,7 @@ const initialize = async (url = currentUrl) => {
 	emitter.on(Settings.allowBackgroundAds, (isEnabled) => {
 		if (isEmbedError) return;
 
-		return isEnabled ? youtubeVideoPlayer.play() : youtubeVideoPlayer.pause();
+		return isEnabled ? ytPlayer.play() : ytPlayer.pause();
 	});
 
 	emitter.on(Settings.showComparisonSlider, (isEnabled) => {
@@ -96,60 +142,68 @@ const initialize = async (url = currentUrl) => {
 		const settings = await getSettings();
 
 		if (isPlaying && settings[Settings.allowBackgroundAds]) {
-			youtubeVideoPlayer.play();
+			ytPlayer.play();
 		} else {
-			youtubeVideoPlayer.pause();
+			ytPlayer.pause();
 		}
 	};
 
-	embeddedVideoPlayer.onPlayStateChange(handlePlayStateChange);
+	embedPlayer.onPlayStateChange(handlePlayStateChange);
+
+	emitter.on("hide-loader", hideLoader);
 
 	const checkEmbedErrorId = setInterval(() => {
-		const flyTubeIframe = document.querySelector("iframe#flytube-player") as
-			| HTMLIFrameElement
-			| undefined;
-
-		const embedError =
-			flyTubeIframe?.contentWindow?.document.querySelector(".ytp-embed-error");
-
-		if (flyTubeIframe && embedError) {
+		if (embedPlayer.iframeDocument && embedPlayer.errorContent) {
 			isEmbedError = true;
 			videoPlayerContainer.classList.add("flytube-error"); // trigger mutation observer
 			clearInterval(checkEmbedErrorId);
+		} else if (embedPlayer.iframeDocument && embedPlayer.player?.currentTime) {
+			emitter.emit("hide-loader");
 		}
 	}, 500);
 
-	const disconnectObserver = onClassChange(videoPlayerContainer, async () => {
-		const flyTubeIframe = document.querySelector("iframe#flytube-player") as
-			| HTMLIFrameElement
-			| undefined;
+	const disconnectObserver = onClassChange(
+		videoPlayerContainer,
+		throttle(async () => {
+			const isIframeInDom = embedPlayer.iframeDocument;
+			const isIframeError = embedPlayer.errorContent;
 
-		const embedError =
-			flyTubeIframe?.contentWindow?.document.querySelector(".ytp-embed-error");
+			const flyTubeError =
+				videoPlayerContainer.classList.contains("flytube-error");
 
-		const flyTubeError =
-			videoPlayerContainer.classList.contains("flytube-error");
+			if (!isIframeInDom) return;
 
-		if (flyTubeIframe && (!embedError || !flyTubeError)) {
-			// always mute underlying player when flytube is loaded. otherwise, if underlying player changes from ad to video or vice versa, mute state might not be updated correctly.
-			youtubeVideoPlayer.mute();
-		} else if (!isEmbedErrorHandled) {
-			isEmbedError = true;
-			isEmbedErrorHandled = true;
-			youtubeVideoPlayer.pause();
-			await Toast.show(
-				videoPlayerContainer,
-				"FlyTube failed to load",
-				"The native YouTube player will now be used & you may see ads.",
-			);
-			youtubeVideoPlayer.unmute();
-			youtubeVideoPlayer.play();
-			disconnectObserver();
-			cleanup();
-		}
-	});
+			if (!isIframeError || !flyTubeError) {
+				// always mute underlying player when flytube is loaded. otherwise, if underlying player changes from ad to video or vice versa, mute state might not be updated correctly.
+				ytPlayer.mute();
+			} else if ((isIframeError || flyTubeError) && !isEmbedErrorHandled) {
+				isEmbedError = true;
 
-	youtubeVideoPlayer.mount(embeddedVideoPlayer.iframeElement);
+				videoPlayerContainer.classList.remove("flytube-error");
+
+				ytPlayer.pause();
+
+				await Toast.show(
+					videoPlayerContainer,
+					"Failed to load",
+					"The native YouTube player will now be used & you may see ads.",
+				);
+
+				ytPlayer.unmute();
+				ytPlayer.play();
+
+				cleanup();
+
+				isEmbedErrorHandled = true;
+
+				disconnectObserver();
+
+				emitter.emit("hide-loader");
+			}
+		}, 1000),
+	);
+
+	ytPlayer.mount(embedPlayer.iframeElement);
 };
 
 const cleanup = () => {
