@@ -3,10 +3,7 @@
 <h1>FlyTube</h1>
 <p style="font-size: 18px;">Ad-free YouTube, no subscription</p>
 
-<video width="480" autoplay muted loop>
-  <source src="/screenshots/demo.mp4" type="video/mp4">
-  Your browser does not support HTML video.
-</video>
+<img src="/screenshots/demo.gif" alt="flytube demo" />
 </div>
 
 FlyTube is a chrome extension that allows you to watch YouTube without showing you any Ads.
