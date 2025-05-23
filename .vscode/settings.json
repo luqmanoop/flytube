@@ -1,9 +1,9 @@
 {
   "editor.formatOnSave": true,
-  "[typescript]": {
+  "[javascript]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
-  "[javascript]": {
+  "[typescript]": {
     "editor.defaultFormatter": "biomejs.biome"
   }
 }

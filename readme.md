@@ -4,9 +4,7 @@
 <p style="font-size: 18px;">Ad-free YouTube, no subscription</p>
 </div>
 
-FlyTube is a chrome extension that allows you to watch YouTube without showing you any Ads.
-
-It works by not blocking ads but allowing them to play in the background while you enjoy YouTube in an overlayed embedded YouTube player.
+Instead of **blocking ads**, FlyTube plays them in the background silently with an overlayed embedded player for uninterrupted YouTube. This way, you support creators (Ad revenue) without sacrificing your precious time watching Ads.
 
 <div align="center">
 <img src="/screenshots/demo.gif" alt="flytube demo" />
@@ -14,7 +12,7 @@ It works by not blocking ads but allowing them to play in the background while y
 
 ## Features
 
-- Watch YouTube without Ads
+- Watch YouTube overlayed without Ads
 - Play/Pause background ads
 - Remove distracting ad slots and banners on YouTube
 - Comparison slider to see video with or without ads
