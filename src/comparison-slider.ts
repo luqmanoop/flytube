@@ -18,7 +18,7 @@ css.innerHTML = `
   z-index: 1300 !important;
   width: .2rem;
   height: 100%;
-  background-color: #fff;
+  background-color: #dadada;
   left: var(--position);
   transform: translateX(-50%);
   pointer-events: none;
