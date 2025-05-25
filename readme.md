@@ -5,7 +5,7 @@
 </div>
 
 <div align="center">
-<img src="https://assets.luqmanoop.com/background-ads-demo.gif" alt="flytube demo" />
+<img src="https://assets.luqmanoop.com/background-ads.gif" alt="flytube demo" />
 
 <p></p>
 <p>FlyTube is a browser extension that allows you to watch YouTube (overlayed) without Ad interruptions.</p>
