@@ -18,6 +18,10 @@ chrome.runtime.onInstalled.addListener(async ({ reason }) => {
 		if (isBackgroundAdsEnabled === undefined) {
 			await storage.set(Settings.allowBackgroundAds, true);
 		}
+
+		chrome.tabs.create({
+			url: "options/index.html",
+		});
 	}
 
 	chrome.action.disable();

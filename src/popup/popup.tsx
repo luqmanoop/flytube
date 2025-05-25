@@ -1,11 +1,15 @@
 import type { JSXInternal } from "node_modules/preact/src/jsx";
+import type { ReactNode } from "preact/compat";
 import { useState, useEffect } from "preact/hooks";
 import type { JSX } from "preact/jsx-runtime";
 
 import { getSettings, SettingsConfig } from "src/settings";
 import { storage } from "src/utils";
+import manifest from "public/manifest.json";
 
-type Props = Pick<JSXInternal.HTMLAttributes, "className">;
+type Props = Pick<JSXInternal.HTMLAttributes, "className"> & {
+  renderSettingsPreview?: (settingId: string) => ReactNode;
+};
 
 export function Popup(props?: Props) {
   const [settings, setSettings] = useState<Partial<Record<string, boolean>>>(
@@ -49,13 +53,13 @@ export function Popup(props?: Props) {
         <div className="flex flex-col items-center gap-1 text-center">
           <img
             src={chrome.runtime.getURL("icons/128.png")}
-            alt="FlyTube"
+            alt={manifest.name}
             className="w-[90px] mb-0 rounded-xl"
           />
-          <h1 className="text-3xl font-bold mt-0 tracking-tighter">FlyTube</h1>
-          <p className="text-base tracking-tight">
-            Ad-free YouTube, no subscription.
-          </p>
+          <h1 className="text-3xl font-bold mt-0 tracking-tighter">
+            {manifest.name}
+          </h1>
+          <p className="text-base tracking-tight">{manifest.description}</p>
         </div>
         <div className="border-t border-gray-200 dark:border-slate-700 mt-2 py-4 flex flex-col gap-2">
           <h3 className="text-lg font-bold mb-3">Settings</h3>
@@ -73,13 +77,14 @@ export function Popup(props?: Props) {
                 aria-describedby={`${setting.id}-description`}
                 className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
               />
-              <div className="flex flex-col gap-1 relative -top-[5px]">
+              <div className="flex flex-col gap-1 relative -top-[5px] w-full">
                 <label htmlFor={setting.id} className="text-base">
                   {setting.title}
                 </label>
                 <p className="text-xs text-gray-500 dark:text-slate-400">
                   {setting.description}
                 </p>
+                {props?.renderSettingsPreview?.(setting.id)}
               </div>
             </div>
           ))}

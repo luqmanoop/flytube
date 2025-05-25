@@ -1,6 +1,6 @@
 {
   "name": "FlyTube",
-  "description": "Ad-free YouTube, no subscription.",
+  "description": "Watch YouTube (overlayed) without Ads.",
   "version": "1.0.0",
   "manifest_version": 3,
   "icons": {
@@ -10,7 +10,7 @@
     "128": "icons/128.png"
   },
   "action": {
-    "default_title": "FlyTube (Ad-free YouTube, no subscription)",
+    "default_title": "FlyTube",
     "default_popup": "popup/index.html"
   },
   "options_page": "options/index.html",

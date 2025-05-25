@@ -1,18 +1,21 @@
 <div align="center">
-<img src="/public/icons/128.png" width="128" height="128" />
+<img src="https://assets.luqmanoop.com/flytube.png" width="128" height="128" />
 <h1>FlyTube</h1>
-<p style="font-size: 18px;">Ad-free YouTube, no subscription</p>
+<p style="font-size: 18px;">Watch YouTube (overlayed) without Ads.</p>
 </div>
 
-Instead of **blocking ads**, FlyTube plays them in the background silently with an overlayed embedded player for uninterrupted YouTube. This way, you support creators (Ad revenue) without sacrificing your precious time watching Ads.
-
 <div align="center">
-<img src="/screenshots/demo.gif" alt="flytube demo" />
+<img src="https://assets.luqmanoop.com/background-ads.gif" alt="flytube demo" />
+
+<p></p>
+<p>FlyTube is a browser extension that allows you to watch YouTube (overlayed) without Ad interruptions.</p>
+
+<p>Instead of <b>blocking ads</b>, FlyTube plays them in the background silently & overlays an embedded player for uninterrupted YouTube. This way, you support creators (with Ad revenue) without sacrificing your time watching (skippable/unskippable) Ads.</p>
 </div>
 
 ## Features
 
-- Watch YouTube overlayed without Ads
+- Watch YouTube (overlayed) without interruptions
 - Play/Pause background ads
 - Remove distracting ad slots and banners on YouTube
 - Comparison slider to see video with or without ads
