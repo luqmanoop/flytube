@@ -10,7 +10,7 @@
 <p></p>
 <p>FlyTube is a browser extension that allows you to watch YouTube (overlayed) without Ad interruptions.</p>
 
-<p>Instead of <b>blocking ads</b>, FlyTube plays them in the background silently & overlays an embedded player for uninterrupted YouTube. This way, you support creators (with Ad revenue) without sacrificing your time watching (skippable/unskippable) Ads.</p>
+<p>Instead of <b>blocking ads</b>, FlyTube plays them silently in the background & overlays an embedded player for uninterrupted YouTube. This way, you support creators (with Ad revenue) without sacrificing your time watching (skippable/unskippable) Ads.</p>
 </div>
 
 ## Features
