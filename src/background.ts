@@ -19,6 +19,19 @@ chrome.runtime.onInstalled.addListener(async ({ reason }) => {
 			await storage.set(Settings.allowBackgroundAds, true);
 		}
 
+		const tabs = await chrome.tabs.query({
+			url: "https://www.youtube.com/*",
+		});
+
+		for (const tab of tabs) {
+			if (!tab.id) continue;
+
+			chrome.scripting.executeScript({
+				target: { tabId: tab.id },
+				files: ["content-script.js"],
+			});
+		}
+
 		chrome.tabs.create({
 			url: "options/index.html",
 		});

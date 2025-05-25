@@ -160,6 +160,7 @@ const initialize = async (url = currentUrl) => {
 			clearInterval(checkEmbedErrorId);
 		} else if (embedPlayer.iframeDocument && embedPlayer.player?.currentTime) {
 			emitter.emit("hide-loader");
+			videoPlayerContainer.classList.toggle("flytube"); // trigger mutation observer
 		}
 	}, 500);
 
@@ -201,7 +202,7 @@ const initialize = async (url = currentUrl) => {
 
 				emitter.emit("hide-loader");
 			}
-		}, 1000),
+		}, 500),
 	);
 
 	ytPlayer.mount(embedPlayer.iframeElement);
