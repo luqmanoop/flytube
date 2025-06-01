@@ -40,7 +40,7 @@ export default function Accordion({
             <path d="m6 9 6 6 6-6" />
           </svg>
         </button>
-        {isOpen && <div className="p-4">{content}</div>}
+        {isOpen && <div className="px-4 pb-4">{content}</div>}
       </div>
     </div>
   );

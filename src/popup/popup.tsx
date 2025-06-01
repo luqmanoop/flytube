@@ -56,7 +56,7 @@ export function Popup(props?: Props) {
             alt={manifest.name}
             className="w-[90px] mb-0 rounded-xl"
           />
-          <h1 className="text-3xl font-bold mt-0 tracking-tighter">
+          <h1 className="text-2xl font-bold mt-0 tracking-tighter">
             {manifest.name}
           </h1>
           <p className="text-base tracking-tight">{manifest.description}</p>
