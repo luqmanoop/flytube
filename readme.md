@@ -23,3 +23,7 @@
 ## License
 
 This project is under the [MIT](/license) license
+
+<a href="https://www.buymeacoffee.com/luqmanoop">
+<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" width="130" />
+</a>

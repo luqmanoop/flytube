@@ -90,6 +90,32 @@ export function Popup(props?: Props) {
           ))}
         </div>
       </div>
+
+      <div className="flex flex-col items-center gap-2 border-t border-gray-200 dark:border-slate-700 mt-2 py-4">
+        <p className="text-sm text-gray-500 dark:text-slate-400">
+          This project is free and{" "}
+          <a
+            href="https://github.com/luqmanoop/flytube"
+            rel="noreferrer"
+            target="_blank"
+            className="text-indigo-600 dark:text-indigo-400 font-medium underline"
+          >
+            open source
+          </a>
+          . If you find it useful, please consider supporting me with a coffee.
+        </p>
+        <a
+          href="https://www.buymeacoffee.com/luqmanoop"
+          rel="noreferrer"
+          target="_blank"
+        >
+          <img
+            src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
+            alt="Buy Me A Coffee"
+            className="w-32 md:w-36"
+          />
+        </a>
+      </div>
     </div>
   );
 }
