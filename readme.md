@@ -13,6 +13,10 @@
 <p>Instead of <b>blocking ads</b>, FlyTube plays them silently in the background & overlays an embedded player for uninterrupted YouTube. Allowing you to support creators without sacrificing your time watching Ads.</p>
 </div>
 
+## Install
+
+Get it on the [chrome web store](https://chromewebstore.google.com/detail/kpdopaknhndngaipoekhafhppohofdjn?utm_source=item-share-cb)
+
 ## Features
 
 - Watch YouTube (overlayed) without interruptions
@@ -25,5 +29,5 @@
 This project is under the [MIT](/license) license
 
 <a href="https://www.buymeacoffee.com/luqmanoop">
-<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" width="130" />
+<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" width="150" />
 </a>
